@@ -28,11 +28,11 @@ export const TenantSwitch = (props) => {
       <Stack alignItems="center" direction="row" spacing={2} {...props}>
         <Box sx={{ flexGrow: 1 }}>
           <Typography color="inherit" variant="h6">
-            Piston
+            Al-Hayat
           </Typography>
-          <Typography color="neutral.400" variant="body2">
+          {/* <Typography color="neutral.400" variant="body2">
             Batahf
-          </Typography>
+          </Typography> */}
         </Box>
         {/* <IconButton onClick={handlePopoverOpen} ref={anchorRef}>
           <SvgIcon sx={{ fontSize: 16 }}>

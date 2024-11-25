@@ -6,12 +6,7 @@ export const Logo = () => {
   const fillColor = theme.palette.primary.main;
 
   return (
-    <Image
-      src={"/assets/piston-logo.jpg"}
-      width={36}
-      height={36}
-      alt="logo.jpg"
-    />
+    <Image src={"/assets/logo.png"} width={36} height={36} alt="logo.jpg" />
     // <svg
     //   fill="none"
     //   height="100%"

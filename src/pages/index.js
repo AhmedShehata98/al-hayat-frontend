@@ -152,39 +152,12 @@ const Page = () => {
   return (
     <>
       <Head>
-        <title>Piston dashboard login</title>
+        <title>Al-Hayat dashboard login</title>
       </Head>
       <main>
         <div>
-          {/* <Box sx={{ mb: 4 }}>
-            <Link
-              color="text.primary"
-              component={NextLink}
-              href={paths.dashboard.index}
-              sx={{
-                alignItems: "center",
-                display: "inline-flex",
-              }}
-              underline="hover"
-            >
-              <SvgIcon sx={{ mr: 1 }}>
-                <ArrowLeftIcon />
-              </SvgIcon>
-              <Typography variant="subtitle2">Dashboard</Typography>
-            </Link>
-          </Box> */}
           <Stack sx={{ mb: 4 }} spacing={1}>
             <Typography variant="h5">{LoginHeadingTitle}</Typography>
-            {/* <Typography color="text.secondary" variant="body2">
-              Don&apos;t have an account? &nbsp;
-              <Link
-                href={paths.authDemo.register.modern}
-                underline="hover"
-                variant="subtitle2"
-              >
-                Register
-              </Link>
-            </Typography> */}
           </Stack>
           <form noValidate onSubmit={formik.handleSubmit}>
             <Stack spacing={3}>

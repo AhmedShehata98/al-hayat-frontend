@@ -119,19 +119,22 @@ export const Layout = (props) => {
               </Box>
               <Box
                 sx={{
+                  display: "flex",
+                  alignItems: "center",
                   color: "text.primary",
                   fontFamily: "'Plus Jakarta Sans', sans-serif",
-                  fontSize: 14,
+                  fontSize: 20,
                   fontWeight: 800,
-                  letterSpacing: "0.3px",
-                  lineHeight: 2.5,
+                  // letterSpacing: "0.3px",
+                  // lineHeight: 4.0,
                   "& span": {
                     color: "primary.main",
+                    mt: 1,
                   },
                 }}
               >
-                {logo?.split(":")[0]}
-                <span> {logo?.split(":")[1]} </span>
+                {/* {logo?.split(":")[0]} */}
+                <span> {logo?.split(":")[0]} </span>
               </Box>
             </Stack>
           </Box>

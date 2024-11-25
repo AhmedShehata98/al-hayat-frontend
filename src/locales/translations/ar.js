@@ -605,14 +605,14 @@ export const ar = {
   [tokens.orderSchedule.card.locationInfo.zipCode]: "الرمز البريدي",
 
   [tokens.login.informationSection.headingTitle]:
-    "مرحبًا بك في لوحة تحكم باطهف بيستون",
+    "مرحبًا بك في لوحة تحكم الحياة",
   [tokens.login.informationSection.description]:
     "مجموعة احترافية تأتي مع مكونات MUI جاهزة للاستخدام تم تطويرها بهدف واحد مشترك، وهو مساعدتك في بناء تطبيقات أسرع وجميلة.",
   [tokens.login.loginPanel.agreeCheckbox]: "لقد قرأت الشروط والأحكام",
   [tokens.login.loginPanel.code]: "الرمز",
   [tokens.login.loginPanel.continueBtn]: "متابعة",
   [tokens.login.loginPanel.headingTitle]: "تسجيل الدخول",
-  [tokens.login.loginPanel.logo]: " باطهف : بيستون",
+  [tokens.login.loginPanel.logo]: " الحياة",
   [tokens.login.loginPanel.phoneNumberInput]: "رقم الهاتف",
   [tokens.login.loginPanel.sendCodeBtn]: "إرسال الرمز",
   [tokens.login.loginPanel.sendOtpBtnAgain]: "إرسال مرة أخرى",

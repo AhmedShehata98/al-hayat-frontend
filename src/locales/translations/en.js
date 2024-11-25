@@ -622,14 +622,14 @@ export const en = {
   [tokens.orderSchedule.card.locationInfo.zipCode]: "postal code",
 
   [tokens.login.informationSection.headingTitle]:
-    "Welcome to batahaf Piston dashboard",
+    "Welcome to al-hayat dashboard",
   [tokens.login.informationSection.description]:
     "A professional kit that comes with ready-to-use MUI components developed with one common goal in mind, help you build faster & beautiful applications.",
   [tokens.login.loginPanel.agreeCheckbox]: "i have read teams and conditions",
   [tokens.login.loginPanel.code]: "code",
   [tokens.login.loginPanel.continueBtn]: "continue",
   [tokens.login.loginPanel.headingTitle]: "login",
-  [tokens.login.loginPanel.logo]: "batahaf : piston",
+  [tokens.login.loginPanel.logo]: "al-hayat",
   [tokens.login.loginPanel.phoneNumberInput]: "phone number",
   [tokens.login.loginPanel.sendCodeBtn]: "send code",
   [tokens.login.loginPanel.sendOtpBtnAgain]: "send again",
