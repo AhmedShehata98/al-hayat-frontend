@@ -117,6 +117,8 @@ export const paths = {
       workingHours: "/dashboard/maintenance/working-hours",
       maintenanceRequestDetails:
         "/dashboard/maintenance/:maintenance-request-id",
+      createCategory: "/dashboard/maintenance/categories/create",
+      category: "/dashboard/maintenance/categories",
     },
 
     products: {

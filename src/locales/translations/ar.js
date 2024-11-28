@@ -14,6 +14,7 @@ export const ar = {
   [tokens.common.cancelBtn]: "الغي",
   [tokens.common.updateBtn]: "تعديل",
   [tokens.common.detailsBtn]: "شاهد التفاصيل",
+  [tokens.common.addBtn]: "اضافة",
 
   [tokens.appHeader.accountPopover.account]: "الحساب",
   [tokens.appHeader.accountPopover.settings]: "الإعدادات",
@@ -82,6 +83,8 @@ export const ar = {
   [tokens.nav.maintenance]: "خدمات الصيانة",
   [tokens.nav.maintenanceRequests]: "قائمة الطلبات",
   [tokens.nav.maintenanceWorkingHours]: "مواعيد العمل",
+  [tokens.nav.maintenanceCategory]: "فئات ",
+  [tokens.nav.maintenanceCategoryCreate]: "إنشاء فئة",
   [tokens.breadcrumbs.dashboard]: "لوحة التحكم",
   [tokens.breadcrumbs.productsList]: "قائمة المنتجات",
   [tokens.breadcrumbs.productsCreate]: "إنشاء منتج",
@@ -570,6 +573,20 @@ export const ar = {
   [tokens.maintenanceDetails.propertiesList.maintenanceStatus.pending]:
     "قيد الانتظار",
 
+  [tokens.maintenanceCategories.headingTitle]: "فئات الصيانة",
+  [tokens.maintenanceCategories.card.name]: "اسم",
+  [tokens.maintenanceCategories.card.capacity]: "سعة",
+  [tokens.maintenanceCategories.card.createdAt]: "تم إنشاؤها في",
+  [tokens.maintenanceCategories.card.subCategory]: "الفئة الفرعية",
+
+  [tokens.maintenanceCategoriesCreate.headingTitle]: "إنشاء فئة الصيانة",
+  [tokens.maintenanceCategoriesCreate.properties.name]: "اسم",
+  [tokens.maintenanceCategoriesCreate.properties.image]: "صورة",
+  [tokens.maintenanceCategoriesCreate.properties.subCategory]: "الفئة الفرعية",
+  [tokens.maintenanceCategoriesCreate.properties.subCategoryListHeading]:
+    "قائمة فئات الصيانة الفرعية ",
+  [tokens.maintenanceCategoriesCreate.properties.capacity]: "سعة",
+
   [tokens.orderSchedule.headingTitle]: "جدول الطلبات",
   [tokens.orderSchedule.actions.submit]: "إرسال",
   [tokens.orderSchedule.actions.autoAssign]: "تعيين تلقائي",
@@ -763,6 +780,12 @@ export const ar = {
   [tokens.validationMessages.login.phoneNumber.maxLength]:
     "رقم الهاتف يجب ان لا يتعدي ال {maxLength} حرفا",
   [tokens.validationMessages.login.otp.required]: "رمز التحقق هو حقل مطلوب",
+  [tokens.validationMessages.maintenanceCategories.name]:
+    "اسم فئة الصيانة مطلوب",
+  [tokens.validationMessages.maintenanceCategories.image]:
+    "صوؤة فئة الصيانة مطلوب",
+  [tokens.validationMessages.maintenanceCategories.subCategorys]:
+    "يجب ادخال علي الاقل فئة فرعية واحدة",
 
   [tokens.networkMessages.serverError.title]: "خطأ في الخادم",
   [tokens.networkMessages.serverError.message]:

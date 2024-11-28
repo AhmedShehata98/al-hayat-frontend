@@ -31,8 +31,6 @@ function CalenderDays({
   onDeleteShift = ({ day, shift }) => {},
   onAddNewShift = ({ day, time }) => {},
   days = [],
-  activeColor = "primary",
-  textActiveColor = "#000",
 }) {
   const [isShownTimeModal, setIsShownTimeModal] = React.useState(false);
   const [isUpdating, setIsUpdating] = React.useState(false);

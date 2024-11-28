@@ -14,6 +14,7 @@ export const tokens = {
     saveBtn: "common.saveBtn",
     cancelBtn: "common.cancelBtn",
     updateBtn: "common.updateBtn",
+    addBtn: "common.addBtn",
     detailsBtn: "common.detailsBtn",
   },
   appHeader: {
@@ -94,6 +95,8 @@ export const tokens = {
     maintenance: "nav.maintenance",
     maintenanceRequests: "nav.maintenanceRequests",
     maintenanceWorkingHours: "nav.maintenanceWorkingHours",
+    maintenanceCategory: "nav.maintenanceCategory",
+    maintenanceCategoryCreate: "nav.maintenanceCategoryCreate",
   },
   breadcrumbs: {
     dashboard: "breadcrumbs.dashboard",
@@ -800,6 +803,26 @@ export const tokens = {
     rejectSuccessMsg: "maintenance.rejectSuccessMsg",
     rejectErrorMsg: "maintenance.rejectOrderError",
   },
+  maintenanceCategories: {
+    headingTitle: "maintenanceCategories.headingTitle",
+    card: {
+      name: "maintenanceCategories.card.name",
+      subCategory: "maintenanceCategories.card.subCategory",
+      capacity: "maintenanceCategories.card.capacity",
+      createdAt: "maintenanceCategories.card.createdAt",
+    },
+  },
+  maintenanceCategoriesCreate: {
+    headingTitle: "maintenanceCategoriesCreate.headingTitle",
+    properties: {
+      name: "maintenanceCategoriesCreate.properties.name",
+      image: "maintenanceCategoriesCreate.properties.image",
+      subCategory: "maintenanceCategoriesCreate.properties.subCategory",
+      subCategoryListHeading:
+        "maintenanceCategoriesCreate.properties.initialValues",
+      capacity: "maintenanceCategoriesCreate.properties.capacity",
+    },
+  },
   maintenanceDetails: {
     propertiesList: {
       customer: "maintenanceDetails.propertiesList.customer",
@@ -1080,6 +1103,11 @@ export const tokens = {
       otp: {
         required: "validationMessages.login.otp.required",
       },
+    },
+    maintenanceCategories: {
+      name: "validationMessages.maintenanceCategories.name",
+      image: "validationMessages.maintenanceCategories.image",
+      subCategorys: "validationMessages.maintenanceCategories.subCategories",
     },
   },
   networkMessages: {

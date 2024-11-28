@@ -19,9 +19,19 @@ import ArrowLeftIcon from "@untitled-ui/icons-react/build/esm/ArrowLeft";
 import CalendarIcon from "@untitled-ui/icons-react/build/esm/Calendar";
 import ServiceSummeryWrapper from "../../../../sections/dashboard/maintenance/request-service-details/ServiceSummeryWrapper";
 import SummeryItem from "../../../../sections/dashboard/maintenance/request-service-details/SummeryItem";
+import { useQuery } from "@tanstack/react-query";
+import { maintenanceService } from "../../../../api/maintaine-services";
+import { useGetMaintenanceRequestDetails } from "../../../../hooks/use-maintenance";
+import { usePathname } from "next/navigation";
 
-function MaintenanceRequestDetailsPage() {
+function MaintenanceRequestDetailsPage(props) {
+  const pathname = usePathname();
+  const id = pathname?.split("/").pop();
+
   const { formatDate } = useFormatDate();
+  const { maintenanceRequestDetails } = useGetMaintenanceRequestDetails(id);
+
+  console.log("maintenanceRequestDetails :", maintenanceRequestDetails);
 
   const createdAt = formatDate(new Date());
   return (
@@ -65,7 +75,7 @@ function MaintenanceRequestDetailsPage() {
                 spacing={3}
               >
                 <Stack spacing={1}>
-                  <Typography variant="h4">#{"order.id"}</Typography>
+                  <Typography variant="h4">#{id}</Typography>
                   <Stack alignItems="center" direction="row" spacing={1}>
                     <Typography color="text.secondary" variant="body2">
                       {t(tokens.maintenance.placedOn)}
@@ -87,32 +97,38 @@ function MaintenanceRequestDetailsPage() {
               />
               <SummeryItem
                 label={t(tokens.maintenanceDetails.propertiesList.description)}
-                value={
-                  " example description description description description description description description description description "
-                }
+                value={maintenanceRequestDetails.contentList.description}
               />
               <SummeryItem
                 label={t(
                   tokens.maintenanceDetails.propertiesList.maintenanceService
                 )}
-                value={"example maintenance service"}
+                value={
+                  maintenanceRequestDetails.contentList.serviceCategory.name
+                }
               />
               <SummeryItem
                 label={t(
                   tokens.maintenanceDetails.propertiesList.maintenanceType
                 )}
-                value={"maintenance type example"}
+                value={
+                  maintenanceRequestDetails.contentList.serviceCategory
+                    ?.subCategory.name
+                }
               />
               <SummeryItem
                 label={t(tokens.maintenanceDetails.propertiesList.warranty)}
                 value={t(
-                  tokens.maintenanceDetails.propertiesList.warrantyStatus
-                    .isValid
+                  tokens.maintenanceDetails.propertiesList.warrantyStatus[
+                    maintenanceRequestDetails.contentList.isWarranty
+                      ? "isValid"
+                      : "isExpired"
+                  ]
                 )}
               />
               <SummeryItem
                 label={t(tokens.maintenanceDetails.propertiesList.id)}
-                value={"18005"}
+                value={maintenanceRequestDetails.contentList.requestServiceId}
               />
               <SummeryItem
                 label={t(tokens.maintenanceDetails.propertiesList.location)}
@@ -120,11 +136,13 @@ function MaintenanceRequestDetailsPage() {
               />
               <SummeryItem
                 label={t(tokens.maintenanceDetails.propertiesList.visitDate)}
-                value={" 12/12/2022"}
+                value={formatDate(
+                  maintenanceRequestDetails.contentList.visitDate
+                )}
               />
               <SummeryItem
                 label={t(tokens.maintenanceDetails.propertiesList.visitTime)}
-                value={"13:40 PM"}
+                value={maintenanceRequestDetails.contentList.visitTime}
               />
               <SummeryItem
                 label={t(

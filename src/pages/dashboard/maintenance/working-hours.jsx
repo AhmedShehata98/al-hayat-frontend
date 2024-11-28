@@ -1,13 +1,15 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect } from "react";
 import { Layout as DashboardLayout } from "../../../layouts/dashboard";
 import Head from "next/head";
 import {
+  Alert,
   Box,
   Breadcrumbs,
   Button,
   Container,
   Link,
   Paper,
+  Snackbar,
   Stack,
   SvgIcon,
   TextField,
@@ -22,15 +24,15 @@ import { tokens } from "../../../locales/tokens";
 import CalenderDays from "../../../sections/dashboard/maintenance/CalenderDays";
 import { nanoid } from "@reduxjs/toolkit";
 import VisitsCapacity from "../../../sections/dashboard/maintenance/VisitsCapacity";
-
-const DAYS_TEXT_COLORS = {
-  vacation: "#161616",
-  working: "#f6f6f6",
-};
-const DAYS_BACKGROUND_COLORS = {
-  vacation: "#FCFAEE",
-  working: "#162129",
-};
+import {
+  useGetWorkingHours,
+  useUpdateWorkingHours,
+} from "../../../hooks/use-maintenance";
+import {
+  DAYS_BACKGROUND_COLORS,
+  DAYS_TEXT_COLORS,
+} from "../../../utils/adaptors/workdays-adaptor";
+import useSnackbar from "../../../hooks/use-snackbar";
 
 const DAYS = {
   saturday: "saturday",
@@ -104,58 +106,114 @@ const INITIAL_WEEKDAYS_LIST = [
 function WorkingHours() {
   const { t } = useTranslation();
   const [weekDaysList, setWeekDaysList] = React.useState(INITIAL_WEEKDAYS_LIST);
+  const [maxCapacity, setMaxCapacity] = React.useState(0);
+  const [currentCapacity, setCurrentCapacity] = React.useState(0);
+  const {
+    anchorOrigin,
+    handleCloseSnackbar,
+    handleOpenSnackbar,
+    openSnackbar,
+    translatedToast,
+    autoHideDuration,
+  } = useSnackbar();
+  const { updateWorkingHoursAsync, isUpdatingWorkingHours } =
+    useUpdateWorkingHours();
 
-  const handleAddWorkingDay = useCallback((data) => {
-    console.log(data.shift);
-    setWeekDaysList((prevState) =>
-      prevState.map((item) =>
-        item.day === data.day
-          ? {
-              ...item,
-              isWorkingDay: true,
-              isSelected: true,
-              shifts: [{ ...data.shift, id: nanoid(2) }],
-            }
-          : item
-      )
-    );
+  const handleSetDaysAndCapacity = useCallback((data) => {
+    console.log("working hours fetched successfully: ", data);
+    setWeekDaysList(data.contentList);
+    setMaxCapacity(data.contentList?.[0].maxCapacity);
   }, []);
 
+  const { workingHours } = useGetWorkingHours({
+    onSuccess: handleSetDaysAndCapacity,
+  });
+
+  const handleSyncUpdates = useCallback(async (weekDaysList) => {
+    try {
+      await updateWorkingHoursAsync(weekDaysList);
+      handleOpenSnackbar({
+        severity: "success",
+        message: t(tokens.toastMessages.updateMsg),
+      });
+    } catch (error) {
+      handleOpenSnackbar({
+        severity: "error",
+        message: t(tokens.toastMessages.errorMsg),
+      });
+    }
+  }, []);
+
+  const handleAddWorkingDay = useCallback(
+    (data) => {
+      try {
+        setWeekDaysList(async (prevState) => {
+          const updatedData = prevState.map((item) =>
+            item.day === data.day
+              ? {
+                  ...item,
+                  isWorkingDay: true,
+                  isSelected: true,
+                  shifts: [{ ...data.shift, id: nanoid(2) }],
+                }
+              : item
+          );
+
+          handleSyncUpdates(updatedData);
+          return updatedData;
+        });
+      } catch (error) {
+        console.error("Error adding new working day: ", error);
+      }
+    },
+    [updateWorkingHoursAsync, handleOpenSnackbar, t]
+  );
+
   const handleAddNewShift = useCallback((data) => {
-    setWeekDaysList((prevState) =>
-      prevState.map((item) =>
+    setWeekDaysList((prevState) => {
+      const updatedData = prevState.map((item) =>
         item.day === data.day
           ? {
               ...item,
               shifts: [...item.shifts, { ...data.shift, id: nanoid(2) }],
             }
           : item
-      )
-    );
+      );
+
+      handleSyncUpdates(updatedData);
+
+      return updatedData;
+    });
   }, []);
 
   const handleDeleteDay = useCallback((day) => {
     console.log(day);
-    setWeekDaysList((prevState) =>
-      prevState.map((item) =>
+    setWeekDaysList((prevState) => {
+      const updatedData = prevState.map((item) =>
         item.day === day
           ? { ...item, isSelected: false, isWorkingDay: false, shifts: [] }
           : item
-      )
-    );
+      );
+      handleSyncUpdates(updatedData);
+
+      return updatedData;
+    });
   }, []);
 
   const handleDeleteShift = useCallback((data) => {
-    setWeekDaysList((prevState) =>
-      prevState.map((item) =>
+    setWeekDaysList((prevState) => {
+      const updatedData = prevState.map((item) =>
         item.day === data.day
           ? {
               ...item,
               shifts: item.shifts.filter((shift) => shift.id !== data.shiftId),
             }
           : item
-      )
-    );
+      );
+
+      handleSyncUpdates(updatedData);
+      return updatedData;
+    });
   }, []);
 
   return (
@@ -240,7 +298,10 @@ function WorkingHours() {
                     </Typography>
                   </Box>
                 </Stack>
-                <VisitsCapacity currentCapacity={43} maxCapacity={80} />
+                <VisitsCapacity
+                  currentCapacity={currentCapacity}
+                  maxCapacity={maxCapacity}
+                />
               </Stack>
               <Stack marginBottom={6}>
                 <Stack spacing={2} marginBottom={4}>
@@ -294,14 +355,20 @@ function WorkingHours() {
                   onDeleteDay={handleDeleteDay}
                   onAddNewShift={handleAddNewShift}
                   onDeleteShift={handleDeleteShift}
-                  activeColor={DAYS_BACKGROUND_COLORS}
-                  textActiveColor={DAYS_TEXT_COLORS}
                 />
               </Stack>
             </Box>
           </Stack>
         </Container>
       </Box>
+      <Snackbar
+        open={openSnackbar.open}
+        autoHideDuration={autoHideDuration}
+        anchorOrigin={anchorOrigin}
+        onClose={handleCloseSnackbar}
+      >
+        <Alert severity={openSnackbar.severity}>{openSnackbar.message}</Alert>
+      </Snackbar>
     </>
   );
 }

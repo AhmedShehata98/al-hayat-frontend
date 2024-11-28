@@ -1,7 +1,6 @@
-import React from "react";
 import { useTranslation } from "react-i18next";
 
-const useDateFormat = () => {
+export const useTImeFormat = (dateTime) => {
   const [_, translate] = useTranslation();
   const options = {
     dateStyle: "medium",
@@ -9,10 +8,9 @@ const useDateFormat = () => {
   };
 
   const formatDate = (value) =>
-    Intl.DateTimeFormat(`${translate.language}-SA`, options).format(
-      Date.parse(value)
-    );
+    Intl.DateTimeFormat(`${translate.language}-SA`, {
+      timeStyle: "long",
+      timeZone: "Asia/Riyadh",
+    }).format(Date.parse(value));
   return { formatDate };
 };
-
-export default useDateFormat;

@@ -110,9 +110,11 @@ export const ENDPOINTS = {
       },
     },
   },
-  customQuotation: {
-    index: "/api/CustomQuotation",
+  maintenance: {
+    index: "/api/RepairingServiceRequest",
     reject: "/api/CustomQuotation/reject",
+    services: { index: "/api/RepairingServices" },
+    workingHours: { index: "/api/RepairingServices/working-hours" },
   },
   statistics: {
     totalOrders: "/api/Statistics/total-orders",

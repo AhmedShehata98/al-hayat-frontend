@@ -14,6 +14,7 @@ export const en = {
   [tokens.common.cancelBtn]: "cancel",
   [tokens.common.updateBtn]: "update",
   [tokens.common.detailsBtn]: "show details",
+  [tokens.common.addBtn]: "add",
   [tokens.appHeader.accountPopover.account]: "account",
   [tokens.appHeader.accountPopover.settings]: "Settings",
   [tokens.appHeader.accountPopover.billing]: "billing",
@@ -81,6 +82,8 @@ export const en = {
   [tokens.nav.maintenance]: "maintenance service",
   [tokens.nav.maintenanceRequests]: "requests list",
   [tokens.nav.maintenanceWorkingHours]: "Working Hours",
+  [tokens.nav.maintenanceCategory]: "categories",
+  [tokens.nav.maintenanceCategoryCreate]: "create category",
   [tokens.breadcrumbs.dashboard]: "dashboard",
   [tokens.breadcrumbs.productsList]: "products list",
   [tokens.breadcrumbs.productsCreate]: "create product",
@@ -587,6 +590,21 @@ export const en = {
   [tokens.maintenanceDetails.propertiesList.maintenanceStatus.cancelled]:
     "cancelled",
 
+  [tokens.maintenanceCategories.headingTitle]: "maintenance categories",
+  [tokens.maintenanceCategories.card.name]: "name",
+  [tokens.maintenanceCategories.card.capacity]: "capacity",
+  [tokens.maintenanceCategories.card.createdAt]: " created at",
+  [tokens.maintenanceCategories.card.subCategory]: " sub category",
+
+  [tokens.maintenanceCategoriesCreate.headingTitle]:
+    "create maintenance category",
+  [tokens.maintenanceCategoriesCreate.properties.name]: "name",
+  [tokens.maintenanceCategoriesCreate.properties.image]: "image",
+  [tokens.maintenanceCategoriesCreate.properties.subCategory]: "sub category",
+  [tokens.maintenanceCategoriesCreate.properties.subCategoryListHeading]:
+    "list of sub service categories",
+  [tokens.maintenanceCategoriesCreate.properties.capacity]: "capacity",
+
   [tokens.orderSchedule.headingTitle]: "order schedule",
   [tokens.orderSchedule.actions.submit]: "submit",
   [tokens.orderSchedule.actions.autoAssign]: "automatic Assign",
@@ -790,6 +808,12 @@ export const en = {
   [tokens.validationMessages.login.phoneNumber.maxLength]:
     "phone number should not be more than {maxLength} characters long",
   [tokens.validationMessages.login.otp.required]: "OTP code is required field",
+  [tokens.validationMessages.maintenanceCategories.name]:
+    "service category name is required field",
+  [tokens.validationMessages.maintenanceCategories.image]:
+    "service category image is required field",
+  [tokens.validationMessages.maintenanceCategories.subCategorys]:
+    "please add at least one subcategory",
 
   [tokens.networkMessages.serverError.title]: "server error",
   [tokens.networkMessages.serverError.message]:

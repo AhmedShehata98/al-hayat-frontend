@@ -222,8 +222,17 @@ export const getSections = (t) => [
             title: t(tokens.nav.maintenanceWorkingHours),
             path: paths.dashboard.maintenance.workingHours,
           },
+          {
+            title: t(tokens.nav.maintenanceCategory),
+            path: paths.dashboard.maintenance.category,
+          },
+          {
+            title: t(tokens.nav.maintenanceCategoryCreate),
+            path: paths.dashboard.maintenance.createCategory,
+          },
         ],
       },
+
       {
         title: t(tokens.nav.orderSchedule),
         icon: (

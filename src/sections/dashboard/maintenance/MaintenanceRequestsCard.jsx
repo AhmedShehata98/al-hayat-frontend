@@ -8,6 +8,7 @@ import {
   CardMedia,
   Link,
   Paper,
+  Stack,
   Typography,
 } from "@mui/material";
 import { t } from "i18next";
@@ -15,8 +16,11 @@ import React from "react";
 import { tokens } from "../../../locales/tokens";
 import NextLink from "next/link";
 import { paths } from "../../../paths";
+import { prefixImageUrl } from "../../../utils/prefixImageUrl";
+import useDateFormat from "../../../hooks/use-date.format";
 
-function MaintenanceRequestsCard() {
+function MaintenanceRequestsCard({ data }) {
+  const { formatDate } = useDateFormat();
   return (
     <Card
       elevation={12}
@@ -34,7 +38,11 @@ function MaintenanceRequestsCard() {
       <CardMedia
         component={"img"}
         height={"180"}
-        image="https://picsum.photos/200"
+        image={
+          data.image
+            ? prefixImageUrl(data.image)
+            : "/assets/image-not-found-placeholder.png"
+        }
         alt="request-img"
       />
       <CardContent>
@@ -45,20 +53,85 @@ function MaintenanceRequestsCard() {
           textTransform={"capitalize"}
           marginBottom={2}
         >
-          request title
+          {data.serviceCategory.name}
         </Typography>
-        <Typography variant="body1" sx={{ color: "text.secondary" }}>
-          location of the request
+        <Stack flexDirection={"row"} alignItems={"center"} gap={"0.5rem"}>
+          <Typography
+            variant="body1"
+            sx={{
+              color: "text.secondary",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+            }}
+          >
+            {data.isWarranty
+              ? t(
+                  tokens.maintenanceDetails.propertiesList.warrantyStatus
+                    .isValid
+                )
+              : t(
+                  tokens.maintenanceDetails.propertiesList.warrantyStatus
+                    .isExpired
+                )}
+          </Typography>
+          <Paper
+            sx={{
+              width: "0.75rem",
+              height: "0.75rem",
+              backgroundColor: data.isWarranty ? "#04c77c" : "#C62E2E",
+              borderRadius: "50%",
+            }}
+          ></Paper>
+        </Stack>
+        <Typography
+          variant="body1"
+          sx={{
+            color: "text.secondary",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+          }}
+        >
+          {data.description}
         </Typography>
-        <Typography variant="body2" sx={{ color: "text.secondary" }}>
-          request time: 12:30 PM
-        </Typography>
+        <Box
+          style={{
+            backgroundColor: "#e6e6e6",
+            borderRadius: "8px",
+            flexGrow: 1,
+            padding: 10,
+            marginTop: 6,
+          }}
+        >
+          <Typography
+            sx={{
+              textTransform: "capitalize",
+              color: "#151414",
+              fontSize: 12,
+              mb: 2,
+            }}
+          >
+            {t(tokens.maintenanceWorkingHours.workShifts)}
+          </Typography>
+          <Typography
+            sx={{ textTransform: "capitalize", color: "#000000", fontSize: 12 }}
+          >
+            {data.visitTime}
+          </Typography>
+          <Typography
+            sx={{ textTransform: "capitalize", color: "#000000", fontSize: 12 }}
+          >
+            {formatDate(data.visitDate)}
+          </Typography>
+        </Box>
       </CardContent>{" "}
       <CardActions>
         <Link
           fontSize={13}
           component={NextLink}
-          href={paths.dashboard.maintenance.maintenanceRequestDetails}
+          href={paths.dashboard.maintenance.maintenanceRequestDetails.replace(
+            ":maintenance-request-id",
+            data.id
+          )}
         >
           {t(tokens.common.detailsBtn)}
         </Link>

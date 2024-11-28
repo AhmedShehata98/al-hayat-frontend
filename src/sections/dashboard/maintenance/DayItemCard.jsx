@@ -44,8 +44,8 @@ function DayItemCard({
           }
           color={
             data.isSelected && data.isWorkingDay
-              ? data.color.working
-              : data.color.vacation
+              ? data.color?.working
+              : data.color?.vacation
           }
         >
           <Typography variant="body1" fontWeight={"bold"}>
@@ -71,8 +71,8 @@ function DayItemCard({
                 display:
                   !data.isSelected && !data.isWorkingDay ? "flex" : "none",
                 color: data.isWorkingDay
-                  ? data.color.working
-                  : data.color.vacation,
+                  ? data.color?.working
+                  : data.color?.vacation,
               }}
               onClick={() => onAdd(data.day)}
             >
