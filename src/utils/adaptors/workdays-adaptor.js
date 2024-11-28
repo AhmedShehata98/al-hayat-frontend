@@ -31,9 +31,9 @@ export function workDaysResponseAdaptor(workDays = []) {
   return transformedWorkDays;
 }
 
-export function workingDaysRequestAdaptor(days = []) {
+export function workingDaysUpdateRequestAdaptor(days = []) {
   const transformedDays = days.map((day) => ({
-    day: day.day.toLowerCase(),
+    dayOfWeek: day.day.toLowerCase(),
     isDayOff: day.isVacation,
     maxRequestsPerDay: day.maxCapacity,
     shifts: day.shifts.map((shift) => ({

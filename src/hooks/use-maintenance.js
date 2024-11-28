@@ -5,7 +5,7 @@ import { useRecoilValue } from "recoil";
 import { maintenanceAdaptor } from "../utils/adaptors/maintenance-adaptor";
 import {
   workDaysResponseAdaptor,
-  workingDaysRequestAdaptor,
+  workingDaysUpdateRequestAdaptor,
 } from "../utils/adaptors/workdays-adaptor";
 import { useEffect, useMemo } from "react";
 
@@ -200,10 +200,10 @@ export const useUpdateWorkingHours = () => {
     mutationFn: (workingHours) => {
       console.log(
         "adapted request data: ",
-        workingDaysRequestAdaptor(workingHours)
+        workingDaysUpdateRequestAdaptor(workingHours)
       );
       maintenanceService.updateWorkingHours({
-        workingHours: workingDaysRequestAdaptor(workingHours),
+        workingHours: workingDaysUpdateRequestAdaptor(workingHours),
         token: authState.token,
       });
     },
