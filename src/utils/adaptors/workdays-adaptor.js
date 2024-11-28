@@ -31,9 +31,18 @@ export function workDaysResponseAdaptor(workDays = []) {
   return transformedWorkDays;
 }
 
+const DAYS_INTEGER = {
+  sunday: 0,
+  monday: 1,
+  tuesday: 2,
+  wednesday: 3,
+  thursday: 4,
+  friday: 5,
+  saturday: 6,
+};
 export function workingDaysUpdateRequestAdaptor(days = []) {
   const transformedDays = days.map((day) => ({
-    dayOfWeek: day.day.toLowerCase(),
+    dayOfWeek: DAYS_INTEGER[day.toLowerCase()],
     isDayOff: day.isVacation,
     maxRequestsPerDay: day.maxCapacity,
     shifts: day.shifts.map((shift) => ({
