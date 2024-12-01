@@ -25,7 +25,8 @@ import MaintenanceRequestsCard from "../../../sections/dashboard/maintenance/Mai
 import { useGetMaintenanceRequests } from "../../../hooks/use-maintenance";
 import { useMemo, useState } from "react";
 import { useDebounceValue } from "usehooks-ts";
-
+import LinearProgressWithLabel from "../../../components/linear-progress-with-label";
+import { calcPercentageFromUnits } from "../../../utils/maintenance-requests";
 function MaintenanceRequests() {
   const { t } = useTranslation();
   const filterOptions = useMemo(() => {
@@ -65,7 +66,6 @@ function MaintenanceRequests() {
     return `${year}-${month}-${day}`;
   });
 
-  console.log("date: ", currentDate);
   const [filterMaintenance, setFilterMaintenance] = useState("all");
   const [searchTerm, setSearchTerm] = useState("", 400);
   const [debounceSearchTerm, setDebounceSearchTerm] = useDebounceValue("", 400);
@@ -81,6 +81,20 @@ function MaintenanceRequests() {
     filter: filterMaintenance,
     VisitDate: currentDate,
   });
+
+  const calculateVisits = useMemo(() => {
+    if (
+      !maintenanceRequests?.maxRequestsPerDay ||
+      !maintenanceRequests?.totalRequestsPerDay
+    )
+      return 0;
+
+    const totalVisits = calcPercentageFromUnits({
+      totalUnits: maintenanceRequests?.maxRequestsPerDay,
+      currentUnits: maintenanceRequests?.totalRequestsPerDay,
+    });
+    return totalVisits;
+  }, [maintenanceRequests, isLoadingMaintenanceRequests]);
 
   const handleChangeFilter = (event) => {
     setFilterMaintenance(event.target.value);
@@ -189,13 +203,29 @@ function MaintenanceRequests() {
               </Box>
             </Stack>
           </Stack>
+          {!isLoadingMaintenanceRequests &&
+            maintenanceRequests?.totalRequestsPerDay &&
+            maintenanceRequests?.maxRequestsPerDay && (
+              <Box sx={{ width: "100%", mt: 4 }}>
+                <Typography
+                  variant="h6"
+                  sx={{ display: "flex", alignItems: "center", gap: 2 }}
+                >
+                  {t(tokens.maintenanceWorkingHours.visitsCapacity)}:{" "}
+                  <Typography variant="body1">
+                    {maintenanceRequests.maxRequestsPerDay}
+                  </Typography>
+                </Typography>
+                <LinearProgressWithLabel value={calculateVisits} />
+              </Box>
+            )}
           <Stack
             sx={{
               width: "100%",
               display: "grid",
               gridTemplateColumns: "1fr",
               gap: 3,
-              marginTop: 7,
+              marginTop: 3,
               "@media screen and (min-width: 540px)": {
                 gridTemplateColumns: "1fr 1fr",
               },
@@ -205,7 +235,7 @@ function MaintenanceRequests() {
               "@media screen and (min-width: 992px)": {
                 gridTemplateColumns: "1fr 1fr 1fr 1fr",
               },
-              "@media screen and (min-width: 1440px)": {
+              "@media screen (min-width: 1440px)": {
                 gridTemplateColumns: "1fr 1fr 1fr 1fr 1fr",
               },
             }}

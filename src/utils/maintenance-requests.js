@@ -22,3 +22,8 @@ export const requestStatusColors = (status) => {
       };
   }
 };
+
+export const calcPercentageFromUnits = ({ totalUnits, currentUnits }) => {
+  const percentage = (parseFloat(currentUnits) / parseFloat(totalUnits)) * 100;
+  return percentage.toFixed(2);
+};

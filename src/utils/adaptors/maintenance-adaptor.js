@@ -27,12 +27,3 @@ export const maintenanceAdaptor = (data = []) => {
 
   return transformedData;
 };
-
-function _parseMaintenanceWorkDays(workDays) {
-  try {
-    return JSON.parse(workDays);
-  } catch (error) {
-    console.error("Error parsing maintenance work days:", error);
-    return [];
-  }
-}
