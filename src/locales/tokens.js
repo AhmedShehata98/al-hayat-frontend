@@ -796,6 +796,7 @@ export const tokens = {
     },
     placedOn: "maintenance.placedOn",
     goBackBtn: "maintenance.goBackBtn",
+    filterByDate: "maintenance.filterByDate",
     basicInfoHeading: "maintenance.basicInfoHeading",
     rejectOrder: "maintenance.rejectOrder",
     rejectOrderComment: "maintenance.rejectOrderComment",

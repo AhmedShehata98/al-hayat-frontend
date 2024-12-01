@@ -530,6 +530,7 @@ export const en = {
   [tokens.maintenance.status.rejected]: "rejected",
   [tokens.maintenance.status.all]: "all",
   [tokens.maintenance.goBackBtn]: "go back",
+  [tokens.maintenance.filterByDate]: "filter By Date",
   [tokens.maintenance.basicInfoHeading]: "basic information",
   [tokens.maintenance.placedOn]: "placed on",
   [tokens.maintenance.rejectOrder]: "reject Order",

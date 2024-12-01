@@ -516,6 +516,7 @@ export const ar = {
   [tokens.maintenance.status.all]: "الكل",
   [tokens.maintenance.searchOrderPlaceholder]: "البحث برقم الطلب",
   [tokens.maintenance.goBackBtn]: "الرجوع",
+  [tokens.maintenance.filterByDate]: " تصفية حسب التاريخ",
   [tokens.maintenance.basicInfoHeading]: "المعلومات الاساسية",
   [tokens.maintenance.placedOn]: " تم الطلب في",
   [tokens.maintenance.rejectOrder]: "رفض الطلب",

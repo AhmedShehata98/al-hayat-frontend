@@ -8,6 +8,7 @@ class MaintenanceService extends ApiService {
     page = 1,
     search,
     filter,
+    VisitDate = new Date().toLocaleDateString(),
   }) {
     try {
       let params = {
@@ -20,6 +21,9 @@ class MaintenanceService extends ApiService {
       }
       if (filter) {
         params.Status = filter !== "all" ? filter : null;
+      }
+      if (VisitDate) {
+        params.VisitDate = VisitDate;
       }
 
       const res = await this.axios({

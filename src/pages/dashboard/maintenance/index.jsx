@@ -57,9 +57,16 @@ function MaintenanceRequests() {
     ];
   }, [t]);
   const [page, setPage] = useState(1);
-  const [currentDate, setCurrentDate] = useState("");
+  const [currentDate, setCurrentDate] = useState(() => {
+    const date = new Date();
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  });
+
   console.log("date: ", currentDate);
-  const [filterMaintenance, setFilterMaintenance] = useState("");
+  const [filterMaintenance, setFilterMaintenance] = useState("all");
   const [searchTerm, setSearchTerm] = useState("", 400);
   const [debounceSearchTerm, setDebounceSearchTerm] = useDebounceValue("", 400);
   const {
@@ -72,6 +79,7 @@ function MaintenanceRequests() {
     page,
     search: debounceSearchTerm,
     filter: filterMaintenance,
+    VisitDate: currentDate,
   });
 
   const handleChangeFilter = (event) => {
@@ -89,10 +97,12 @@ function MaintenanceRequests() {
 
   const handleFilterByDate = (evt) => {
     if (!evt.target.value) {
+      console.warn("No date selected");
       return;
     }
     setCurrentDate(evt.target.value);
   };
+
   return (
     <>
       <Head>Dashboard : maintenance service</Head>
@@ -147,32 +157,36 @@ function MaintenanceRequests() {
                 value={searchTerm}
                 onChange={handleChangeSearch}
               />
-              <TextField
-                type="date"
-                value={currentDate}
-                onChange={handleFilterByDate}
-              />
-              <FormControl sx={{ m: 1, minWidth: 170 }}>
-                <InputLabel id="filter-maintenance">filter</InputLabel>
-                <Select
-                  labelId="filter-maintenance"
-                  id="filter-maintenance"
-                  value={filterMaintenance}
-                  label="filter"
-                  onChange={handleChangeFilter}
-                >
-                  {filterOptions.map((option, idx) => (
-                    <MenuItem
-                      key={idx}
-                      value={option.value}
-                      selected={option.value === "all"}
-                    >
-                      {option.label}
-                    </MenuItem>
-                  ))}
-                </Select>
-                {/* <FormHelperText>With label + helper text</FormHelperText> */}
-              </FormControl>
+              <Box
+                sx={{ display: "flex", gap: "0.3rem", alignItems: "center" }}
+              >
+                <TextField
+                  type="date"
+                  name="visit-date"
+                  id="visit-date"
+                  color="primary"
+                  value={currentDate}
+                  label={t(tokens.maintenance.filterByDate)}
+                  onChange={handleFilterByDate}
+                />
+                <FormControl sx={{ m: 1, minWidth: 170 }}>
+                  <InputLabel id="filter-maintenance">filter</InputLabel>
+                  <Select
+                    labelId="filter-maintenance"
+                    id="filter-maintenance"
+                    value={filterMaintenance}
+                    label="filter"
+                    onChange={handleChangeFilter}
+                  >
+                    {filterOptions.map((option, idx) => (
+                      <MenuItem key={idx} value={option.value}>
+                        {option.label}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                  {/* <FormHelperText>With label + helper text</FormHelperText> */}
+                </FormControl>
+              </Box>
             </Stack>
           </Stack>
           <Stack

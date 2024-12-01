@@ -15,7 +15,13 @@ const QUERIES_KEY = {
   MAINTENANCE_SERVICES: "maintenance-services",
   WORKING_HOURS: "working-hours",
 };
-export const useGetMaintenanceRequests = ({ limit, page, search, filter }) => {
+export const useGetMaintenanceRequests = ({
+  limit,
+  page,
+  search,
+  filter,
+  VisitDate,
+}) => {
   const { token } = useRecoilValue(authAtom);
   const {
     data,
@@ -27,7 +33,7 @@ export const useGetMaintenanceRequests = ({ limit, page, search, filter }) => {
       QUERIES_KEY.MAINTENANCE_REQUESTS,
       { limit, page },
       token,
-      { search, filter },
+      { search, filter, VisitDate },
     ],
     queryFn: () =>
       maintenanceService.getAllMaintenanceRequests({
@@ -36,6 +42,7 @@ export const useGetMaintenanceRequests = ({ limit, page, search, filter }) => {
         page,
         search,
         filter,
+        VisitDate,
       }),
     keepPreviousData: true,
   });
