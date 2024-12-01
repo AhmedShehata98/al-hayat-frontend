@@ -133,7 +133,7 @@ class MaintenanceService extends ApiService {
   async changeMaintenanceStatus({ token, maintenanceId, status }) {
     try {
       const res = await this.axios({
-        method: "PUT",
+        method: "PATCH",
         url: `${this.endpoints.maintenance.status.index}`.replace(
           "{id}",
           maintenanceId

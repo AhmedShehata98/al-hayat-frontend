@@ -133,20 +133,28 @@ function MaintenanceRequestDetailsPage(props) {
                       <Button
                         color="secondary"
                         sx={{
-                          display:
-                            maintenanceRequestDetails?.contentList.status ===
-                            "Declined"
-                              ? "none"
-                              : "flex",
                           borderRadius: "6px",
                         }}
                         variant="contained"
                         startIcon={<DoDisturbIcon />}
-                        onClick={() =>
+                        onClick={() => {
+                          if (
+                            maintenanceRequestDetails?.contentList.status ===
+                              "Declined" ||
+                            maintenanceRequestDetails?.contentList.status ===
+                              "Accepted"
+                          )
+                            return;
                           changeStatusAsync({
                             status: "Declined",
                             maintenanceId: id,
-                          })
+                          });
+                        }}
+                        disabled={
+                          maintenanceRequestDetails?.contentList.status ===
+                            "Declined" ||
+                          maintenanceRequestDetails?.contentList.status ===
+                            "Accepted"
                         }
                       >
                         {t(tokens.maintenanceDetails.rejectionRequestBtn)}
@@ -154,20 +162,35 @@ function MaintenanceRequestDetailsPage(props) {
                       <Button
                         color="primary"
                         sx={{
-                          display:
+                          opacity:
                             maintenanceRequestDetails?.contentList.status ===
-                            "Accepted"
-                              ? "none"
-                              : "flex",
+                              "Declined" ||
+                            maintenanceRequestDetails?.contentList.status ===
+                              "Accepted"
+                              ? "0.3"
+                              : "1",
                           borderRadius: "6px",
                         }}
                         variant="contained"
                         startIcon={<DoneAllIcon />}
-                        onClick={() =>
+                        onClick={() => {
+                          if (
+                            maintenanceRequestDetails?.contentList.status ===
+                              "Declined" ||
+                            maintenanceRequestDetails?.contentList.status ===
+                              "Accepted"
+                          )
+                            return;
                           changeStatusAsync({
                             status: "Accepted",
                             maintenanceId: id,
-                          })
+                          });
+                        }}
+                        disabled={
+                          maintenanceRequestDetails?.contentList.status ===
+                            "Declined" ||
+                          maintenanceRequestDetails?.contentList.status ===
+                            "Accepted"
                         }
                       >
                         {t(tokens.maintenanceDetails.acceptRequestBtn)}

@@ -57,6 +57,8 @@ function MaintenanceRequests() {
     ];
   }, [t]);
   const [page, setPage] = useState(1);
+  const [currentDate, setCurrentDate] = useState("");
+  console.log("date: ", currentDate);
   const [filterMaintenance, setFilterMaintenance] = useState("");
   const [searchTerm, setSearchTerm] = useState("", 400);
   const [debounceSearchTerm, setDebounceSearchTerm] = useDebounceValue("", 400);
@@ -83,6 +85,13 @@ function MaintenanceRequests() {
 
   const handleChangePage = (event, page) => {
     setPage(page);
+  };
+
+  const handleFilterByDate = (evt) => {
+    if (!evt.target.value) {
+      return;
+    }
+    setCurrentDate(evt.target.value);
   };
   return (
     <>
@@ -137,6 +146,11 @@ function MaintenanceRequests() {
                 fullWidth
                 value={searchTerm}
                 onChange={handleChangeSearch}
+              />
+              <TextField
+                type="date"
+                value={currentDate}
+                onChange={handleFilterByDate}
               />
               <FormControl sx={{ m: 1, minWidth: 170 }}>
                 <InputLabel id="filter-maintenance">filter</InputLabel>
