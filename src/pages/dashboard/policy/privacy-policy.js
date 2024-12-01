@@ -14,7 +14,7 @@ import { paths } from "../../../paths.js";
 import NextLink from "next/link";
 import { useTranslation } from "react-i18next";
 import { tokens } from "../../../locales/tokens.js";
-import TinyMceEditor from "../../../components/tinymce-wrapper/TinyMceEditor.js";
+// import TinyMceEditor from "../../../components/tinymce-wrapper/TinyMceEditor.js";
 
 const PrivacyPolicy = () => {
   const { t } = useTranslation();
