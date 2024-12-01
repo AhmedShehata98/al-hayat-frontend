@@ -2,28 +2,27 @@ import { workDaysAdaptor } from "./workdays-adaptor";
 export const maintenanceAdaptor = (data = []) => {
   const transformedData = data.map((elem) => ({
     id: elem.id,
-    serviceCategory: {
-      id: elem.repairingService.id,
-      name: elem.repairingService.name,
-      workingHours: workDaysAdaptor(
-        _parseMaintenanceWorkDays(elem.repairingService.workingHours)
-      ),
-      offDays: elem.repairingService.offDays || [],
-      capacityPerDay: elem.repairingService.maxRequestsPerDay || 0,
-      subCategory: {
-        name: elem.repairingService.subRepairs?.[0] || undefined,
-      },
-      createdAt: elem.createdAt,
-      updatedAt: elem.updatedAt,
-    },
-    requestServiceId: elem.repairingServiceId,
+    repairingServiceId: elem.repairingServiceId,
+    repairingServiceName: elem.repairingServiceName,
+    subRepair: elem.subRepair,
     isWarranty: elem.isInsideWarranty,
     description: elem.description,
     visitDate: elem.visitDate,
     visitTime: elem.visitTime,
     image: elem.imageUrl,
     createdAt: elem.createdAt,
-    updatedAt: elem.updatedAt,
+    user: {
+      name: `${elem.user.firstName} ${elem.user.lastName}`,
+      phoneNumber: elem.user.phoneNumber,
+    },
+    address: {
+      country: elem.address.country,
+      city: elem.address.city,
+      postalCode: elem.address.postalCode,
+    },
+    status: elem.status,
+    customerRequestNumber: elem.customerRequestNumber,
+    createdAt: elem.createdAt,
   }));
 
   return transformedData;

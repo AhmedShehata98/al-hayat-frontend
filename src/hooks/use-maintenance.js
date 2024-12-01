@@ -15,7 +15,7 @@ const QUERIES_KEY = {
   MAINTENANCE_SERVICES: "maintenance-services",
   WORKING_HOURS: "working-hours",
 };
-export const useGetMaintenanceRequests = ({ limit, page }) => {
+export const useGetMaintenanceRequests = ({ limit, page, search, filter }) => {
   const { token } = useRecoilValue(authAtom);
   const {
     data,
@@ -23,9 +23,20 @@ export const useGetMaintenanceRequests = ({ limit, page }) => {
     isError: isErrorMaintenanceRequests,
     error: errorMaintenanceRequests,
   } = useQuery({
-    queryKey: [QUERIES_KEY.MAINTENANCE_REQUESTS, { limit, page }, token],
+    queryKey: [
+      QUERIES_KEY.MAINTENANCE_REQUESTS,
+      { limit, page },
+      token,
+      { search, filter },
+    ],
     queryFn: () =>
-      maintenanceService.getAllMaintenanceRequests({ token, limit, page }),
+      maintenanceService.getAllMaintenanceRequests({
+        token,
+        limit,
+        page,
+        search,
+        filter,
+      }),
     keepPreviousData: true,
   });
 
@@ -33,7 +44,7 @@ export const useGetMaintenanceRequests = ({ limit, page }) => {
     maintenanceRequests: data
       ? {
           ...data,
-          contentList: maintenanceAdaptor(data.contentList),
+          contentList: maintenanceAdaptor(data?.paginatedList),
         }
       : undefined,
     isLoadingMaintenanceRequests,
@@ -69,6 +80,35 @@ export const useGetMaintenanceRequestDetails = (maintenanceRequestId) => {
     },
     isLoadingMaintenanceRequestDetails,
     isErrorMaintenanceRequestDetails,
+  };
+};
+
+export const useChangeMaintenanceStatus = () => {
+  const { token } = useRecoilValue(authAtom);
+  const queryClient = useQueryClient();
+
+  const {
+    mutateAsync: changeStatusAsync,
+    isPending: isPendingChangeStatus,
+    isError: isErrorChangeStatus,
+    error: errorMsg,
+  } = useMutation({
+    mutationFn: ({ status, maintenanceId }) =>
+      maintenanceService.changeMaintenanceStatus({
+        token,
+        status,
+        maintenanceId,
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries([QUERIES_KEY.MAINTENANCE_REQUESTS]);
+    },
+  });
+
+  return {
+    changeStatusAsync,
+    isPendingChangeStatus,
+    isErrorChangeStatus,
+    errorMsg,
   };
 };
 
@@ -122,6 +162,37 @@ export const useAddMaintenanceService = () => {
   };
 };
 
+export const useUpdateMaintenanceService = () => {
+  const queryClient = useQueryClient();
+  const authState = useRecoilValue(authAtom);
+
+  const {
+    mutate: updateMaintenanceService,
+    isPending: isUpdatingMaintenanceService,
+    isError: isErrorMaintenanceService,
+    error: errorMaintenanceService,
+  } = useMutation({
+    mutationFn: ({ newServiceData, serviceId }) =>
+      maintenanceService.updateMaintenanceService({
+        newServiceData,
+        serviceId,
+        token: authState.token,
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [QUERIES_KEY.MAINTENANCE_SERVICES],
+      });
+    },
+  });
+
+  return {
+    updateMaintenanceService,
+    isUpdatingMaintenanceService,
+    isErrorMaintenanceService,
+    errorMaintenanceService,
+  };
+};
+
 export const useDeleteMaintenanceService = () => {
   const queryClient = useQueryClient();
   const authState = useRecoilValue(authAtom);
@@ -170,14 +241,13 @@ export const useGetWorkingHours = ({ onSuccess }) => {
       ...data,
       contentList: workDaysResponseAdaptor(data?.contentList),
     }),
-    [data]
+    [data, isLoadingWorkingHours]
   );
 
   useEffect(() => {
-    if (!isLoadingWorkingHours && data) {
-      onSuccess?.(newData);
-    }
-  }, [isLoadingWorkingHours, onSuccess, newData]);
+    if (!data) return;
+    onSuccess?.(data);
+  }, [data, isLoadingWorkingHours]);
 
   return {
     workingHours: newData,
@@ -198,10 +268,6 @@ export const useUpdateWorkingHours = () => {
     error: errorWorkingHours,
   } = useMutation({
     mutationFn: (workingHours) => {
-      console.log(
-        "adapted request data: ",
-        workingDaysUpdateRequestAdaptor(workingHours)
-      );
       maintenanceService.updateWorkingHours({
         workingHours: workingDaysUpdateRequestAdaptor(workingHours),
         token: authState.token,

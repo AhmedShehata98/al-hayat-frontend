@@ -4,6 +4,7 @@ import {
   Button,
   Container,
   Link,
+  Pagination,
   Stack,
   SvgIcon,
   Typography,
@@ -27,10 +28,18 @@ const ServiceCategory = () => {
   const { t } = useTranslation();
   const selectedServiceId = useState(null);
   const setSelectedServiceState = useSetRecoilState(maintenanceServicesAtom);
-  const { maintenanceServices } = useGetMaintenanceServices({
+  const [page, setPage] = useState(1);
+  const {
+    maintenanceServices,
+    isErrorMaintenanceServices,
+    isLoadingMaintenanceServices,
+  } = useGetMaintenanceServices({
     limit: 10,
-    page: 1,
+    page,
   });
+  const handleChangePage = (event, page) => {
+    setPage(page);
+  };
 
   return (
     <>
@@ -116,6 +125,16 @@ const ServiceCategory = () => {
               ))}
           </Stack>
         </Container>
+        <Pagination
+          count={maintenanceServices?.totalPages || 1}
+          page={maintenanceServices?.currentPage || 1}
+          color="primary"
+          disabled={isLoadingMaintenanceServices || isErrorMaintenanceServices}
+          onChange={handleChangePage}
+          sx={{
+            mt: 6,
+          }}
+        />
       </Box>
     </>
   );

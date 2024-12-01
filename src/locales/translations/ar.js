@@ -533,6 +533,7 @@ export const ar = {
   [tokens.maintenanceWorkingHours.hours]: "الساعات",
   [tokens.maintenanceWorkingHours.daysRange]: "نطاق الأيام",
   [tokens.maintenanceWorkingHours.workShifts]: "نوبات العمل",
+  [tokens.maintenanceWorkingHours.visitTime]: "توقيت الزيارة",
   [tokens.maintenanceWorkingHours.endHours]: "ساعات الانتهاء",
   [tokens.maintenanceWorkingHours.startHours]: "ساعات البدء",
   [tokens.maintenanceWorkingHours.from]: "من",
@@ -568,10 +569,13 @@ export const ar = {
   [tokens.maintenanceDetails.propertiesList.location]: "الموقع",
   [tokens.maintenanceDetails.propertiesList.maintenanceStatus.title]:
     "حالة الصيانة",
-  [tokens.maintenanceDetails.propertiesList.maintenanceStatus.cancelled]:
-    "ملغي",
+  [tokens.maintenanceDetails.propertiesList.maintenanceStatus.declined]: "ملغي",
   [tokens.maintenanceDetails.propertiesList.maintenanceStatus.pending]:
     "قيد الانتظار",
+  [tokens.maintenanceDetails.propertiesList.maintenanceStatus.accepted]:
+    "تم القبول",
+  [tokens.maintenanceDetails.rejectionRequestBtn]: "رفض الطلب",
+  [tokens.maintenanceDetails.acceptRequestBtn]: "قبول الطلب",
 
   [tokens.maintenanceCategories.headingTitle]: "فئات الصيانة",
   [tokens.maintenanceCategories.card.name]: "اسم",

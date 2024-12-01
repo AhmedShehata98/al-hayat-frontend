@@ -7,30 +7,6 @@ export const DAYS_BACKGROUND_COLORS = {
   working: "#162129",
 };
 
-// schema for workDays adaptor:
-// {
-//   day: DAYS.sunday,
-//   shifts: [],
-//   color: DAYS_TEXT_COLORS,
-//   backgroundColor: DAYS_BACKGROUND_COLORS,
-//   isSelected: false,
-//   isWorkingDay: false,
-// },
-export function workDaysResponseAdaptor(workDays = []) {
-  const transformedWorkDays = workDays.map((day) => ({
-    day: day.day.toLowerCase(),
-    shifts: day.shifts.map((shift) => ({ time: shift })),
-    color: DAYS_TEXT_COLORS,
-    backgroundColor: DAYS_BACKGROUND_COLORS,
-    isSelected: !day.isDayOff,
-    isVacation: day.isDayOff,
-    isWorkingDay: !day.isDayOff,
-    maxCapacity: day.maxRequestsPerDay || 0,
-  }));
-
-  return transformedWorkDays;
-}
-
 const DAYS_INTEGER = {
   sunday: 0,
   monday: 1,
@@ -40,10 +16,30 @@ const DAYS_INTEGER = {
   friday: 5,
   saturday: 6,
 };
+
+export function workDaysResponseAdaptor(workDays = []) {
+  const transformedWorkDays = workDays.map((day) => {
+    return {
+      day: day?.day?.toLowerCase() || "",
+      shifts:
+        day.shifts?.map((shift) => ({
+          time: { ...shift },
+        })) || [],
+      color: DAYS_TEXT_COLORS,
+      backgroundColor: DAYS_BACKGROUND_COLORS,
+      isSelected: day.isDayOff === false ? true : false,
+      isWorkingDay: day.isDayOff === false ? true : false,
+      maxCapacity: day?.maxRequestsPerDay || 0,
+    };
+  });
+
+  return transformedWorkDays;
+}
+
 export function workingDaysUpdateRequestAdaptor(days = []) {
   const transformedDays = days.map((day) => ({
-    dayOfWeek: DAYS_INTEGER[day.toLowerCase()],
-    isDayOff: day.isVacation,
+    dayOfWeek: DAYS_INTEGER[day.day.toLowerCase()],
+    isDayOff: !day.isWorkingDay,
     maxRequestsPerDay: day.maxCapacity,
     shifts: day.shifts.map((shift) => ({
       startTime: `${shift.time.startTime}:00`,

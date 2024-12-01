@@ -843,10 +843,14 @@ export const tokens = {
       maintenanceStatus: {
         title: "maintenanceDetails.propertiesList.maintenanceStatus.title",
         pending: "maintenanceDetails.propertiesList.maintenanceStatus.pending",
-        cancelled:
-          "maintenanceDetails.propertiesList.maintenanceStatus.cancelled",
+        declined:
+          "maintenanceDetails.propertiesList.maintenanceStatus.declined",
+        accepted:
+          "maintenanceDetails.propertiesList.maintenanceStatus.accepted",
       },
     },
+    rejectionRequestBtn: "maintenanceDetails.rejectionRequestBtn",
+    acceptRequestBtn: "maintenanceDetails.acceptRequestBtn",
   },
   maintenanceWorkingHours: {
     headingTitle: "maintenanceWorkingHours.headingTitle",
@@ -859,6 +863,7 @@ export const tokens = {
     hours: "maintenanceWorkingHours.hours",
     daysRange: "maintenanceWorkingHours.daysRange",
     workShifts: "maintenanceWorkingHours.workShifts",
+    visitTime: "maintenanceWorkingHours.visitTime",
     startHours: "maintenanceWorkingHours.startHours",
     maintenanceType: "maintenanceWorkingHours.maintenanceType",
     maintenanceTypePlaceholder:

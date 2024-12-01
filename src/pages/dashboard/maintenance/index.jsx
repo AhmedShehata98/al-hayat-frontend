@@ -6,8 +6,14 @@ import {
   Box,
   Breadcrumbs,
   Container,
+  FormControl,
+  InputLabel,
   Link,
+  MenuItem,
+  Pagination,
+  Select,
   Stack,
+  TextField,
   Typography,
 } from "@mui/material";
 import { BreadcrumbsSeparator } from "../../../components/breadcrumbs-separator";
@@ -17,18 +23,67 @@ import { useTranslation } from "react-i18next";
 import { tokens } from "../../../locales/tokens";
 import MaintenanceRequestsCard from "../../../sections/dashboard/maintenance/MaintenanceRequestsCard";
 import { useGetMaintenanceRequests } from "../../../hooks/use-maintenance";
+import { useMemo, useState } from "react";
+import { useDebounceValue } from "usehooks-ts";
 
 function MaintenanceRequests() {
   const { t } = useTranslation();
+  const filterOptions = useMemo(() => {
+    return [
+      {
+        value: "all",
+        label: `${t(tokens.maintenance.status.title)} - ${t(
+          tokens.maintenance.status.all
+        )}`,
+      },
+      {
+        value: "Declined",
+        label: `${t(tokens.maintenance.status.title)} - ${t(
+          tokens.maintenance.status.rejected
+        )}`,
+      },
+      {
+        value: "Pending",
+        label: `${t(tokens.maintenance.status.title)} - ${t(
+          tokens.maintenance.status.pending
+        )}`,
+      },
+      {
+        value: "Accepted",
+        label: `${t(tokens.maintenance.status.title)} - ${t(
+          tokens.maintenance.status.accept
+        )}`,
+      },
+    ];
+  }, [t]);
+  const [page, setPage] = useState(1);
+  const [filterMaintenance, setFilterMaintenance] = useState("");
+  const [searchTerm, setSearchTerm] = useState("", 400);
+  const [debounceSearchTerm, setDebounceSearchTerm] = useDebounceValue("", 400);
   const {
     maintenanceRequests,
     isErrorMaintenanceRequests,
     isLoadingMaintenanceRequests,
     errorMaintenanceRequests,
-  } = useGetMaintenanceRequests({ limit: 10, page: 1 });
+  } = useGetMaintenanceRequests({
+    limit: 10,
+    page,
+    search: debounceSearchTerm,
+    filter: filterMaintenance,
+  });
 
-  console.log(" errorMaintenanceRequests:", errorMaintenanceRequests);
-  console.log(" isErrorMaintenanceRequests:", isErrorMaintenanceRequests);
+  const handleChangeFilter = (event) => {
+    setFilterMaintenance(event.target.value);
+  };
+
+  const handleChangeSearch = (event) => {
+    setSearchTerm(event.target.value);
+    setDebounceSearchTerm(event.target.value);
+  };
+
+  const handleChangePage = (event, page) => {
+    setPage(page);
+  };
   return (
     <>
       <Head>Dashboard : maintenance service</Head>
@@ -66,20 +121,44 @@ function MaintenanceRequests() {
                   </Link>
                 </Breadcrumbs>
               </Stack>
-              {/* <Stack alignItems="center" direction="row" spacing={3}>
-                <Button
-                  component={NextLink}
-                  href={paths.dashboard.offers.createDiscount}
-                  startIcon={
-                    <SvgIcon>
-                      <PlusIcon />
-                    </SvgIcon>
-                  }
-                  variant="contained"
+            </Stack>
+            {/* filter an search */}
+            <Stack
+              flexDirection={"row"}
+              alignItems={"center"}
+              justifyContent={"space-between"}
+              gap={3}
+            >
+              <TextField
+                id="search-maintenance"
+                label={t(tokens.maintenance.searchOrderPlaceholder)}
+                name="search-maintenance"
+                variant="outlined"
+                fullWidth
+                value={searchTerm}
+                onChange={handleChangeSearch}
+              />
+              <FormControl sx={{ m: 1, minWidth: 170 }}>
+                <InputLabel id="filter-maintenance">filter</InputLabel>
+                <Select
+                  labelId="filter-maintenance"
+                  id="filter-maintenance"
+                  value={filterMaintenance}
+                  label="filter"
+                  onChange={handleChangeFilter}
                 >
-                  {t(tokens.maintenance)}
-                </Button>
-              </Stack> */}
+                  {filterOptions.map((option, idx) => (
+                    <MenuItem
+                      key={idx}
+                      value={option.value}
+                      selected={option.value === "all"}
+                    >
+                      {option.label}
+                    </MenuItem>
+                  ))}
+                </Select>
+                {/* <FormHelperText>With label + helper text</FormHelperText> */}
+              </FormControl>
             </Stack>
           </Stack>
           <Stack
@@ -98,13 +177,12 @@ function MaintenanceRequests() {
               "@media screen and (min-width: 992px)": {
                 gridTemplateColumns: "1fr 1fr 1fr 1fr",
               },
-              "@media screen and (min-width: 1280px)": {
+              "@media screen and (min-width: 1440px)": {
                 gridTemplateColumns: "1fr 1fr 1fr 1fr 1fr",
               },
             }}
           >
             {maintenanceRequests &&
-              maintenanceRequests.success &&
               maintenanceRequests.contentList.map((request) => (
                 <MaintenanceRequestsCard key={request.id} data={request} />
               ))}
@@ -127,6 +205,16 @@ function MaintenanceRequests() {
             )}
           </Stack>
         </Container>
+        <Pagination
+          count={maintenanceRequests?.totalPages || 1}
+          page={maintenanceRequests?.currentPage || 1}
+          color="primary"
+          onChange={handleChangePage}
+          disabled={isLoadingMaintenanceRequests || isErrorMaintenanceRequests}
+          sx={{
+            mt: 6,
+          }}
+        />
       </Box>
     </>
   );

@@ -18,6 +18,7 @@ import MaintenanceCategoryForm from "../../../../sections/dashboard/maintenance/
 import { Layout as DashboardLayout } from "../../../../layouts/dashboard";
 import { maintenanceServicesAtom } from "../../../../atoms/maintenance-services-atom";
 import { useRecoilValue } from "recoil";
+import { prefixImageUrl } from "../../../../utils/prefixImageUrl";
 
 const CreateMaintenancePage = () => {
   const maintenanceServicesState = useRecoilValue(maintenanceServicesAtom);
@@ -25,12 +26,13 @@ const CreateMaintenancePage = () => {
     () => ({
       name: maintenanceServicesState?.name || "",
       subCategoriesList: maintenanceServicesState?.subRepairs || [],
-      image: maintenanceServicesState?.image || "",
+      image: maintenanceServicesState?.imageUrl
+        ? prefixImageUrl(maintenanceServicesState?.imageUrl)
+        : "",
     }),
     [maintenanceServicesState]
   );
 
-  console.log(maintenanceServicesState);
   return (
     <>
       <Head>Dashboard : create discounts</Head>

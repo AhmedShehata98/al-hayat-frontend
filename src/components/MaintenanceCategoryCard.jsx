@@ -82,7 +82,7 @@ function MaintenanceCategoryCard({ service, onUpdate }) {
           onClick={() => {
             onUpdate(service.id);
             router.push(
-              `${paths.dashboard.maintenance.createCategory}?update=1`
+              `${paths.dashboard.maintenance.createCategory}?update=1&id=${service.id}`
             );
           }}
           size="small"

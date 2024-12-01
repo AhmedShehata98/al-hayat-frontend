@@ -2,11 +2,30 @@ import { ApiService } from "..";
 import { responseAdaptor } from "../../utils/adaptors/response-adaptor";
 
 class MaintenanceService extends ApiService {
-  async getAllMaintenanceRequests({ token }) {
+  async getAllMaintenanceRequests({
+    token,
+    limit = 10,
+    page = 1,
+    search,
+    filter,
+  }) {
     try {
+      let params = {
+        PageSize: limit,
+        PageIndex: page,
+      };
+
+      if (search) {
+        params.CustomerRequestNumber = search;
+      }
+      if (filter) {
+        params.Status = filter !== "all" ? filter : null;
+      }
+
       const res = await this.axios({
         method: "GET",
         url: this.endpoints.maintenance.index,
+        params,
         headers: {
           Authorization: token,
         },
@@ -38,6 +57,23 @@ class MaintenanceService extends ApiService {
         method: "POST",
         url: this.endpoints.maintenance.services.index,
         data: serviceData,
+        headers: {
+          Authorization: token,
+        },
+      });
+      return res.data;
+    } catch (error) {
+      throw responseAdaptor(error);
+    }
+  }
+
+  async updateMaintenanceService({ token, serviceId, newServiceData }) {
+    try {
+      const res = await this.axios({
+        method: "PUT",
+        url: `${this.endpoints.maintenance.services.index}/${serviceId}`,
+        data: newServiceData,
+        params: { id: serviceId },
         headers: {
           Authorization: token,
         },
@@ -94,6 +130,24 @@ class MaintenanceService extends ApiService {
     }
   }
 
+  async changeMaintenanceStatus({ token, maintenanceId, status }) {
+    try {
+      const res = await this.axios({
+        method: "PUT",
+        url: `${this.endpoints.maintenance.status.index}`.replace(
+          "{id}",
+          maintenanceId
+        ),
+        data: { status },
+        headers: {
+          Authorization: token,
+        },
+      });
+      return res.data;
+    } catch (error) {
+      throw responseAdaptor(error);
+    }
+  }
   async updateWorkingHours({ token, workingHours }) {
     try {
       const res = await this.axios({

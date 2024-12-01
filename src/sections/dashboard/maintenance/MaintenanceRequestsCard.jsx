@@ -18,6 +18,10 @@ import NextLink from "next/link";
 import { paths } from "../../../paths";
 import { prefixImageUrl } from "../../../utils/prefixImageUrl";
 import useDateFormat from "../../../hooks/use-date.format";
+import AccessTimeIcon from "@mui/icons-material/AccessTime";
+import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
+import FmdGoodIcon from "@mui/icons-material/FmdGood";
+import { requestStatusColors } from "../../../utils/maintenance-requests";
 
 function MaintenanceRequestsCard({ data }) {
   const { formatDate } = useDateFormat();
@@ -28,6 +32,7 @@ function MaintenanceRequestsCard({ data }) {
         borderRadius: "6px !important",
         boxShadow: "0 8px 24px 0 rgba(0, 0, 0, 0.2)",
         transition: "transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out",
+        position: "relative",
 
         "&:hover": {
           boxShadow: "0 16px 32px 0 rgba(0, 0, 0, 0.2)",
@@ -35,6 +40,24 @@ function MaintenanceRequestsCard({ data }) {
         },
       }}
     >
+      <Box
+        sx={{
+          position: "absolute",
+          right: "25px",
+          top: "25px",
+          paddingX: "1rem",
+          paddingY: "0.5rem",
+          borderRadius: "6px",
+          fontWeight: "600",
+          textTransform: "uppercase",
+          fontSize: "12px",
+          backgroundColor: requestStatusColors(data.status.toLowerCase())
+            .backgroundColor,
+          color: requestStatusColors(data.status.toLowerCase()).color,
+        }}
+      >
+        {data.status}
+      </Box>
       <CardMedia
         component={"img"}
         height={"180"}
@@ -53,13 +76,12 @@ function MaintenanceRequestsCard({ data }) {
           textTransform={"capitalize"}
           marginBottom={2}
         >
-          {data.serviceCategory.name}
+          {data.repairingServiceName}
         </Typography>
         <Stack flexDirection={"row"} alignItems={"center"} gap={"0.5rem"}>
           <Typography
-            variant="body1"
+            variant="body2"
             sx={{
-              color: "text.secondary",
               overflow: "hidden",
               textOverflow: "ellipsis",
             }}
@@ -110,21 +132,75 @@ function MaintenanceRequestsCard({ data }) {
               mb: 2,
             }}
           >
-            {t(tokens.maintenanceWorkingHours.workShifts)}
+            {t(tokens.maintenanceWorkingHours.visitTime)}
           </Typography>
-          <Typography
-            sx={{ textTransform: "capitalize", color: "#000000", fontSize: 12 }}
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              flexDirection: "row",
+              gap: 1,
+              mb: 1,
+            }}
           >
-            {data.visitTime}
-          </Typography>
-          <Typography
-            sx={{ textTransform: "capitalize", color: "#000000", fontSize: 12 }}
+            <AccessTimeIcon />
+            <Typography
+              sx={{
+                textTransform: "capitalize",
+                color: "#000000",
+                fontSize: 12,
+              }}
+            >
+              {data.visitTime}
+            </Typography>
+          </Box>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              flexDirection: "row",
+              gap: 1,
+            }}
           >
-            {formatDate(data.visitDate)}
+            <CalendarMonthIcon />
+            <Typography
+              sx={{
+                textTransform: "capitalize",
+                color: "#000000",
+                fontSize: 12,
+              }}
+            >
+              {formatDate(data.visitDate)}
+            </Typography>
+          </Box>
+        </Box>
+        <Box
+          sx={{
+            display: "flex",
+            width: "100%",
+            height: "1rem",
+            justifyContent: "flex-start",
+            alignItems: "flex-start",
+            gap: 1,
+            padding: 1,
+            marginY: "1rem",
+          }}
+        >
+          <FmdGoodIcon />
+          <Typography
+            variant="caption"
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              width: "100%",
+            }}
+          >
+            {`${data.address.postalCode} - ${data.address.city}, ${data.address.country}`}
           </Typography>
         </Box>
-      </CardContent>{" "}
-      <CardActions>
+      </CardContent>
+      <CardActions sx={{ px: 3 }}>
         <Link
           fontSize={13}
           component={NextLink}

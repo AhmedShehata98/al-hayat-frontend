@@ -3,7 +3,9 @@ import { Layout as DashboardLayout } from "../../../../layouts/dashboard";
 import {
   Box,
   Breadcrumbs,
+  Button,
   Container,
+  LinearProgress,
   Link,
   Stack,
   SvgIcon,
@@ -21,19 +23,54 @@ import ServiceSummeryWrapper from "../../../../sections/dashboard/maintenance/re
 import SummeryItem from "../../../../sections/dashboard/maintenance/request-service-details/SummeryItem";
 import { useQuery } from "@tanstack/react-query";
 import { maintenanceService } from "../../../../api/maintaine-services";
-import { useGetMaintenanceRequestDetails } from "../../../../hooks/use-maintenance";
+import {
+  useChangeMaintenanceStatus,
+  useGetMaintenanceRequestDetails,
+} from "../../../../hooks/use-maintenance";
 import { usePathname } from "next/navigation";
+import DoneAllIcon from "@mui/icons-material/DoneAll";
+import DoDisturbIcon from "@mui/icons-material/DoDisturb";
 
 function MaintenanceRequestDetailsPage(props) {
   const pathname = usePathname();
   const id = pathname?.split("/").pop();
 
-  const { formatDate } = useFormatDate();
-  const { maintenanceRequestDetails } = useGetMaintenanceRequestDetails(id);
+  const { formatDate, formatOnlyDate } = useFormatDate();
+  const { maintenanceRequestDetails, isLoadingMaintenanceRequestDetails } =
+    useGetMaintenanceRequestDetails(id);
+  const { changeStatusAsync, isPendingChangeStatus } =
+    useChangeMaintenanceStatus();
 
-  console.log("maintenanceRequestDetails :", maintenanceRequestDetails);
+  const createdAt = formatDate(
+    maintenanceRequestDetails.createdAt || new Date()
+  );
+  const requestAddress = `${maintenanceRequestDetails?.contentList?.address.postalCode} -${maintenanceRequestDetails?.contentList?.address.city} ${maintenanceRequestDetails?.contentList?.address.country}`;
 
-  const createdAt = formatDate(new Date());
+  const requestStatusColors = (status) => {
+    switch (status) {
+      case "pending":
+        return {
+          color: "#161616",
+          backgroundColor: "#ffb300dc",
+        };
+      case "declined":
+        return {
+          color: "#fff",
+          backgroundColor: "#FF2929dc",
+        };
+      case "accepted":
+        return {
+          color: "#fff",
+          backgroundColor: "#117554dc",
+        };
+      default:
+        return {
+          color: "#161616",
+          backgroundColor: "#FFB200dc",
+        };
+    }
+  };
+
   return (
     <>
       <Head>
@@ -67,107 +104,193 @@ function MaintenanceRequestDetailsPage(props) {
                 </Typography>
               </Link>
             </div>
-            <div>
-              <Stack
-                alignItems="flex-start"
-                direction="row"
-                justifyContent="space-between"
-                spacing={3}
-              >
-                <Stack spacing={1}>
-                  <Typography variant="h4">#{id}</Typography>
-                  <Stack alignItems="center" direction="row" spacing={1}>
-                    <Typography color="text.secondary" variant="body2">
-                      {t(tokens.maintenance.placedOn)}
-                    </Typography>
-                    <SvgIcon color="action">
-                      <CalendarIcon />
-                    </SvgIcon>
-                    <Typography variant="body2">{createdAt}</Typography>
-                  </Stack>
-                </Stack>
-              </Stack>
-            </div>
-            <ServiceSummeryWrapper
-              title={t(tokens.maintenance.basicInfoHeading)}
-            >
-              <SummeryItem
-                label={t(tokens.maintenanceDetails.propertiesList.customer)}
-                value={"ahmed shehata"}
-              />
-              <SummeryItem
-                label={t(tokens.maintenanceDetails.propertiesList.description)}
-                value={maintenanceRequestDetails.contentList.description}
-              />
-              <SummeryItem
-                label={t(
-                  tokens.maintenanceDetails.propertiesList.maintenanceService
-                )}
-                value={
-                  maintenanceRequestDetails.contentList.serviceCategory.name
-                }
-              />
-              <SummeryItem
-                label={t(
-                  tokens.maintenanceDetails.propertiesList.maintenanceType
-                )}
-                value={
-                  maintenanceRequestDetails.contentList.serviceCategory
-                    ?.subCategory.name
-                }
-              />
-              <SummeryItem
-                label={t(tokens.maintenanceDetails.propertiesList.warranty)}
-                value={t(
-                  tokens.maintenanceDetails.propertiesList.warrantyStatus[
-                    maintenanceRequestDetails.contentList.isWarranty
-                      ? "isValid"
-                      : "isExpired"
-                  ]
-                )}
-              />
-              <SummeryItem
-                label={t(tokens.maintenanceDetails.propertiesList.id)}
-                value={maintenanceRequestDetails.contentList.requestServiceId}
-              />
-              <SummeryItem
-                label={t(tokens.maintenanceDetails.propertiesList.location)}
-                value={"Isle of Man , Macedonia 45"}
-              />
-              <SummeryItem
-                label={t(tokens.maintenanceDetails.propertiesList.visitDate)}
-                value={formatDate(
-                  maintenanceRequestDetails.contentList.visitDate
-                )}
-              />
-              <SummeryItem
-                label={t(tokens.maintenanceDetails.propertiesList.visitTime)}
-                value={maintenanceRequestDetails.contentList.visitTime}
-              />
-              <SummeryItem
-                label={t(
-                  tokens.maintenanceDetails.propertiesList.maintenanceStatus
-                    .title
-                )}
-                value={
-                  <Box
-                    sx={{
-                      width: "fit-content",
-                      bgcolor: "#f3cb038a",
-                      px: "1.75rem",
-                      py: "0.7rem",
-                      color: "#000",
-                      fontWeight: "bold",
-                      fontSize: 14,
-                      borderRadius: "8px",
-                      textTransform: "capitalize",
-                    }}
+            {isLoadingMaintenanceRequestDetails ? (
+              <Box sx={{ width: "100%" }}>
+                <LinearProgress />
+              </Box>
+            ) : (
+              <>
+                <div>
+                  <Stack
+                    alignItems="flex-start"
+                    direction="row"
+                    justifyContent="space-between"
+                    spacing={3}
                   >
-                    <Typography>pending</Typography>
-                  </Box>
-                }
-              />
-            </ServiceSummeryWrapper>
+                    <Stack spacing={1}>
+                      <Typography variant="h4">#{id}</Typography>
+                      <Stack alignItems="center" direction="row" spacing={1}>
+                        <Typography color="text.secondary" variant="body2">
+                          {t(tokens.maintenance.placedOn)}
+                        </Typography>
+                        <SvgIcon color="action">
+                          <CalendarIcon />
+                        </SvgIcon>
+                        <Typography variant="body2">{createdAt}</Typography>
+                      </Stack>
+                    </Stack>
+                    <Box sx={{ display: "flex", gap: 1 }}>
+                      <Button
+                        color="secondary"
+                        sx={{
+                          display:
+                            maintenanceRequestDetails?.contentList.status ===
+                            "Declined"
+                              ? "none"
+                              : "flex",
+                          borderRadius: "6px",
+                        }}
+                        variant="contained"
+                        startIcon={<DoDisturbIcon />}
+                        onClick={() =>
+                          changeStatusAsync({
+                            status: "Declined",
+                            maintenanceId: id,
+                          })
+                        }
+                      >
+                        {t(tokens.maintenanceDetails.rejectionRequestBtn)}
+                      </Button>
+                      <Button
+                        color="primary"
+                        sx={{
+                          display:
+                            maintenanceRequestDetails?.contentList.status ===
+                            "Accepted"
+                              ? "none"
+                              : "flex",
+                          borderRadius: "6px",
+                        }}
+                        variant="contained"
+                        startIcon={<DoneAllIcon />}
+                        onClick={() =>
+                          changeStatusAsync({
+                            status: "Accepted",
+                            maintenanceId: id,
+                          })
+                        }
+                      >
+                        {t(tokens.maintenanceDetails.acceptRequestBtn)}
+                      </Button>
+                    </Box>
+                  </Stack>
+                </div>
+                {maintenanceRequestDetails && (
+                  <ServiceSummeryWrapper
+                    title={t(tokens.maintenance.basicInfoHeading)}
+                  >
+                    <SummeryItem
+                      label={t(
+                        tokens.maintenanceDetails.propertiesList.customer
+                      )}
+                      value={maintenanceRequestDetails?.contentList?.user.name}
+                    />
+                    <SummeryItem
+                      label={t(
+                        tokens.maintenanceDetails.propertiesList.description
+                      )}
+                      value={
+                        maintenanceRequestDetails?.contentList?.description
+                      }
+                    />
+                    <SummeryItem
+                      label={t(
+                        tokens.maintenanceDetails.propertiesList
+                          .maintenanceService
+                      )}
+                      value={
+                        maintenanceRequestDetails?.contentList
+                          ?.repairingServiceName
+                      }
+                    />
+                    <SummeryItem
+                      label={t(
+                        tokens.maintenanceDetails.propertiesList.maintenanceType
+                      )}
+                      value={maintenanceRequestDetails?.contentList?.subRepair}
+                    />
+                    <SummeryItem
+                      label={t(
+                        tokens.maintenanceDetails.propertiesList.warranty
+                      )}
+                      value={t(
+                        tokens.maintenanceDetails.propertiesList.warrantyStatus[
+                          maintenanceRequestDetails?.contentList?.isWarranty
+                            ? "isValid"
+                            : "isExpired"
+                        ]
+                      )}
+                    />
+                    <SummeryItem
+                      label={t(tokens.maintenanceDetails.propertiesList.id)}
+                      value={
+                        maintenanceRequestDetails?.contentList
+                          ?.customerRequestNumber
+                      }
+                    />
+                    <SummeryItem
+                      label={t(
+                        tokens.maintenanceDetails.propertiesList.location
+                      )}
+                      value={requestAddress}
+                    />
+                    <SummeryItem
+                      label={t(
+                        tokens.maintenanceDetails.propertiesList.visitDate
+                      )}
+                      value={formatOnlyDate(
+                        maintenanceRequestDetails?.contentList?.visitDate ||
+                          new Date()
+                      )}
+                    />
+                    <SummeryItem
+                      label={t(
+                        tokens.maintenanceDetails.propertiesList.visitTime
+                      )}
+                      value={maintenanceRequestDetails?.contentList?.visitTime}
+                    />
+                    <SummeryItem
+                      label={t(
+                        tokens.maintenanceDetails.propertiesList
+                          .maintenanceStatus.title
+                      )}
+                      value={
+                        <Box
+                          sx={{
+                            width: "fit-content",
+                            px: "1.75rem",
+                            py: "0.7rem",
+                            bgcolor: requestStatusColors(
+                              maintenanceRequestDetails?.contentList?.status?.toLowerCase()
+                            ).backgroundColor,
+
+                            fontWeight: "bold",
+                            fontSize: 14,
+                            borderRadius: "8px",
+                            textTransform: "capitalize",
+                          }}
+                        >
+                          <Typography
+                            sx={{
+                              color: requestStatusColors(
+                                maintenanceRequestDetails?.contentList?.status?.toLowerCase()
+                              ).color,
+                            }}
+                          >
+                            {t(
+                              tokens.maintenanceDetails.propertiesList
+                                .maintenanceStatus[
+                                maintenanceRequestDetails?.contentList?.status?.toLowerCase()
+                              ]
+                            )}
+                          </Typography>
+                        </Box>
+                      }
+                    />
+                  </ServiceSummeryWrapper>
+                )}
+              </>
+            )}
           </Stack>
         </Container>
       </Box>

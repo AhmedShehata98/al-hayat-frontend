@@ -546,6 +546,7 @@ export const en = {
   [tokens.maintenanceWorkingHours.hours]: "hours",
   [tokens.maintenanceWorkingHours.daysRange]: "days range",
   [tokens.maintenanceWorkingHours.workShifts]: "work shifts",
+  [tokens.maintenanceWorkingHours.visitTime]: "visit time",
   [tokens.maintenanceWorkingHours.endHours]: "end hours",
   [tokens.maintenanceWorkingHours.startHours]: "start hours",
   [tokens.maintenanceWorkingHours.from]: "from",
@@ -583,12 +584,14 @@ export const en = {
   [tokens.maintenanceDetails.propertiesList.location]: "location",
   [tokens.maintenanceDetails.propertiesList.maintenanceStatus.title]:
     "maintenance status",
-  [tokens.maintenanceDetails.propertiesList.maintenanceStatus.cancelled]:
-    "cancelled",
   [tokens.maintenanceDetails.propertiesList.maintenanceStatus.pending]:
     "pending",
-  [tokens.maintenanceDetails.propertiesList.maintenanceStatus.cancelled]:
-    "cancelled",
+  [tokens.maintenanceDetails.propertiesList.maintenanceStatus.declined]:
+    "declined",
+  [tokens.maintenanceDetails.propertiesList.maintenanceStatus.accepted]:
+    "accepted",
+  [tokens.maintenanceDetails.rejectionRequestBtn]: "reject Request",
+  [tokens.maintenanceDetails.acceptRequestBtn]: "accept Request",
 
   [tokens.maintenanceCategories.headingTitle]: "maintenance categories",
   [tokens.maintenanceCategories.card.name]: "name",

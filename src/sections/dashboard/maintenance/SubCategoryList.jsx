@@ -31,8 +31,6 @@ function SubCategoryList(props) {
     setSubcategories((prev) => prev.filter((item) => item !== category));
   };
 
-  console.log("sub categories component");
-  console.log(props);
   return (
     <Stack>
       <Box

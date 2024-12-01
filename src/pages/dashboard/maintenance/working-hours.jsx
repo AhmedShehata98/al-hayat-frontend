@@ -6,7 +6,9 @@ import {
   Box,
   Breadcrumbs,
   Button,
+  CircularProgress,
   Container,
+  LinearProgress,
   Link,
   Paper,
   Snackbar,
@@ -31,8 +33,10 @@ import {
 import {
   DAYS_BACKGROUND_COLORS,
   DAYS_TEXT_COLORS,
+  workDaysResponseAdaptor,
 } from "../../../utils/adaptors/workdays-adaptor";
 import useSnackbar from "../../../hooks/use-snackbar";
+import useWeekDays from "../../../hooks/use-week-days";
 
 const DAYS = {
   saturday: "saturday",
@@ -105,9 +109,19 @@ const INITIAL_WEEKDAYS_LIST = [
 
 function WorkingHours() {
   const { t } = useTranslation();
-  const [weekDaysList, setWeekDaysList] = React.useState(INITIAL_WEEKDAYS_LIST);
-  const [maxCapacity, setMaxCapacity] = React.useState(0);
-  const [currentCapacity, setCurrentCapacity] = React.useState(0);
+
+  const [maxCapacityInput, setMaxCapacityInput] = React.useState(0);
+
+  const { workingHours, isLoadingWorkingHours } = useGetWorkingHours({
+    onSuccess: (response) => {
+      const maxRequestsPerDay = response?.contentList?.find(
+        (item) => item.isDayOff === false
+      )?.maxRequestsPerDay;
+      console.log("maxRequestsPerDay: ", maxRequestsPerDay);
+      setMaxCapacityInput(maxRequestsPerDay);
+    },
+  });
+
   const {
     anchorOrigin,
     handleCloseSnackbar,
@@ -119,102 +133,143 @@ function WorkingHours() {
   const { updateWorkingHoursAsync, isUpdatingWorkingHours } =
     useUpdateWorkingHours();
 
-  const handleSetDaysAndCapacity = useCallback((data) => {
-    console.log("working hours fetched successfully: ", data);
-    setWeekDaysList(data.contentList);
-    setMaxCapacity(data.contentList?.[0].maxCapacity);
-  }, []);
+  const handleSyncUpdates = useCallback(
+    async (weekDaysList) => {
+      try {
+        const withCapacity = weekDaysList?.map((item) => ({
+          ...item,
+          maxRequestsPerDay: maxCapacityInput,
+        }));
+        await updateWorkingHoursAsync(withCapacity);
+        handleOpenSnackbar({
+          severity: "success",
+          message: t(tokens.toastMessages.updateMsg),
+        });
+      } catch (error) {
+        console.error("Error updating working hours: ", error);
+        handleOpenSnackbar({
+          severity: "error",
+          message: t(tokens.toastMessages.errorMsg),
+        });
+      }
+    },
+    [updateWorkingHoursAsync, t, maxCapacityInput]
+  );
 
-  const { workingHours } = useGetWorkingHours({
-    onSuccess: handleSetDaysAndCapacity,
+  const { weekDaysList, handleSetWeekdays } = useWeekDays({
+    initialWeekdaysList: workingHours.contentList,
+    onChangeWeekdays: handleSyncUpdates,
   });
-
-  const handleSyncUpdates = useCallback(async (weekDaysList) => {
-    try {
-      await updateWorkingHoursAsync(weekDaysList);
-      handleOpenSnackbar({
-        severity: "success",
-        message: t(tokens.toastMessages.updateMsg),
-      });
-    } catch (error) {
-      handleOpenSnackbar({
-        severity: "error",
-        message: t(tokens.toastMessages.errorMsg),
-      });
-    }
-  }, []);
 
   const handleAddWorkingDay = useCallback(
     (data) => {
+      console.log("add working day: ", data);
       try {
-        setWeekDaysList(async (prevState) => {
-          const updatedData = prevState.map((item) =>
+        handleSetWeekdays((prevState) =>
+          prevState.map((item) =>
             item.day === data.day
               ? {
                   ...item,
                   isWorkingDay: true,
                   isSelected: true,
                   shifts: [{ ...data.shift, id: nanoid(2) }],
+                  maxCapacity: maxCapacityInput,
                 }
               : item
-          );
-
-          handleSyncUpdates(updatedData);
-          return updatedData;
-        });
+          )
+        );
       } catch (error) {
         console.error("Error adding new working day: ", error);
       }
     },
-    [updateWorkingHoursAsync, handleOpenSnackbar, t]
+    [maxCapacityInput]
   );
 
-  const handleAddNewShift = useCallback((data) => {
-    setWeekDaysList((prevState) => {
-      const updatedData = prevState.map((item) =>
-        item.day === data.day
-          ? {
-              ...item,
-              shifts: [...item.shifts, { ...data.shift, id: nanoid(2) }],
-            }
-          : item
+  const handleAddNewShift = useCallback(
+    (data) => {
+      console.log("add new shift: ", data);
+      handleSetWeekdays((prevState) =>
+        prevState.map((item) =>
+          item.day === data.day
+            ? {
+                ...item,
+                shifts: [...item.shifts, { ...data.shift, id: nanoid(2) }],
+                isWorkingDay: true,
+                isSelected: true,
+                maxCapacity: maxCapacityInput,
+              }
+            : item
+        )
       );
+    },
+    [maxCapacityInput]
+  );
 
-      handleSyncUpdates(updatedData);
-
-      return updatedData;
-    });
-  }, []);
-
-  const handleDeleteDay = useCallback((day) => {
-    console.log(day);
-    setWeekDaysList((prevState) => {
-      const updatedData = prevState.map((item) =>
-        item.day === day
-          ? { ...item, isSelected: false, isWorkingDay: false, shifts: [] }
-          : item
+  const handleDeleteDay = useCallback(
+    (day) => {
+      console.log("delete day: ", day);
+      handleSetWeekdays((prevState) =>
+        prevState.map((item) =>
+          item.day === day
+            ? {
+                ...item,
+                isSelected: false,
+                isWorkingDay: false,
+                shifts: [],
+                maxCapacity: maxCapacityInput,
+              }
+            : item
+        )
       );
-      handleSyncUpdates(updatedData);
+    },
+    [maxCapacityInput]
+  );
 
-      return updatedData;
-    });
-  }, []);
-
-  const handleDeleteShift = useCallback((data) => {
-    setWeekDaysList((prevState) => {
-      const updatedData = prevState.map((item) =>
-        item.day === data.day
-          ? {
-              ...item,
-              shifts: item.shifts.filter((shift) => shift.id !== data.shiftId),
-            }
-          : item
+  const handleDeleteShift = useCallback(
+    (data) => {
+      console.log("delete shift: ", data);
+      handleSetWeekdays((prevState) =>
+        prevState.map((item) =>
+          item.day === data.day
+            ? {
+                ...item,
+                shifts: item.shifts.filter(
+                  (shift) => shift.id !== data.shiftId
+                ),
+                maxCapacity: maxCapacityInput,
+              }
+            : { ...item, maxCapacity: maxCapacityInput }
+        )
       );
+    },
+    [maxCapacityInput]
+  );
 
-      handleSyncUpdates(updatedData);
-      return updatedData;
-    });
-  }, []);
+  const handleAddCapacity = useCallback(
+    async (_evt) => {
+      try {
+        const withCapacity = weekDaysList.map((item) => ({
+          ...item,
+          maxCapacity: maxCapacityInput,
+        }));
+        await handleSyncUpdates(withCapacity);
+        handleOpenSnackbar({
+          message: t(tokens.toastMessages.updateMsg).replace(
+            "@",
+            t(tokens.maintenanceWorkingHours.visitsCapacity)
+          ),
+          severity: "success",
+        });
+      } catch (error) {
+        console.error("Error updating working hours with capacity: ", error);
+        handleOpenSnackbar({
+          severity: "error",
+          message: t(tokens.toastMessages.errorMsg),
+        });
+      }
+    },
+    [weekDaysList, maxCapacityInput]
+  );
 
   return (
     <>
@@ -268,6 +323,11 @@ function WorkingHours() {
                 </Button>
               </Stack> */}
             </Stack>
+            <Box sx={{ width: "100%", display: "flex" }}>
+              {isLoadingWorkingHours && (
+                <LinearProgress color="secondary" sx={{ width: "100%" }} />
+              )}
+            </Box>
           </Stack>
           {/* Content */}
           <Stack spacing={4} marginTop={8}>
@@ -277,9 +337,6 @@ function WorkingHours() {
                 width: "100%",
                 gridTemplateColumns: "1fr",
                 gap: "1rem",
-                // "@media screen and (min-width: 1024px)": {
-                //   gridTemplateColumns: "1fr 1fr",
-                // },
               }}
               id="working-hours-content"
             >
@@ -298,10 +355,25 @@ function WorkingHours() {
                     </Typography>
                   </Box>
                 </Stack>
-                <VisitsCapacity
-                  currentCapacity={currentCapacity}
-                  maxCapacity={maxCapacity}
-                />
+                <Box sx={{ display: "flex", flexGrow: 1, mb: 6, gap: 3 }}>
+                  <TextField
+                    name="maxCapacity"
+                    type="number"
+                    color="primary"
+                    fullWidth
+                    label={t(tokens.maintenanceWorkingHours.visitsCapacity)}
+                    value={maxCapacityInput}
+                    disabled={isLoadingWorkingHours}
+                    onChange={(evt) => setMaxCapacityInput(evt.target.value)}
+                  />
+                  <Button
+                    onClick={handleAddCapacity}
+                    variant="contained"
+                    color="primary"
+                  >
+                    {t(tokens.common.addBtn)}
+                  </Button>
+                </Box>
               </Stack>
               <Stack marginBottom={6}>
                 <Stack spacing={2} marginBottom={4}>

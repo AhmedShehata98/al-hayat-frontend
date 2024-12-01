@@ -115,6 +115,7 @@ export const ENDPOINTS = {
     reject: "/api/CustomQuotation/reject",
     services: { index: "/api/RepairingServices" },
     workingHours: { index: "/api/RepairingServices/working-hours" },
+    status: { index: "/api/RepairingServiceRequest/{id}/status" },
   },
   statistics: {
     totalOrders: "/api/Statistics/total-orders",

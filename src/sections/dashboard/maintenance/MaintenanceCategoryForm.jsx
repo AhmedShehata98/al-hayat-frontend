@@ -1,5 +1,5 @@
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import * as Yup from "yup";
 import useSnackbar from "../../../hooks/use-snackbar";
@@ -19,7 +19,10 @@ import {
 import { tokens } from "../../../locales/tokens";
 import Image from "next/image";
 import { useFormik } from "formik";
-import { useAddMaintenanceService } from "../../../hooks/use-maintenance";
+import {
+  useAddMaintenanceService,
+  useUpdateMaintenanceService,
+} from "../../../hooks/use-maintenance";
 import { LoadingButton } from "@mui/lab";
 import { VisuallyHiddenInput } from "../../../components/visual-hidden-input";
 import ImageIcon from "@mui/icons-material/Image";
@@ -39,6 +42,8 @@ function MaintenanceCategoryForm({ initialValues }) {
           t(tokens.validationMessages.maintenanceCategories.image)
         ), // TODO: Add message translation
 
+        isUpdatedImage: Yup.boolean().default(false),
+
         // add validation for subCategoriesList values id array of strings and must have at least one item
         subCategoriesList: Yup.array()
           .of(Yup.string().required())
@@ -49,7 +54,6 @@ function MaintenanceCategoryForm({ initialValues }) {
       }),
     [t]
   );
-  const [updatable, setUpdatable] = useState(false);
   const [imageUrl, setImageUrl] = useState(undefined);
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -65,6 +69,9 @@ function MaintenanceCategoryForm({ initialValues }) {
   const { addMaintenanceService, isAddingMaintenanceService } =
     useAddMaintenanceService();
 
+  const { updateMaintenanceService, isUpdatingMaintenanceService } =
+    useUpdateMaintenanceService();
+
   const formik = useFormik({
     initialValues,
     validationSchema,
@@ -79,34 +86,75 @@ function MaintenanceCategoryForm({ initialValues }) {
     }
 
     formik.setFieldValue("image", file);
+    formik.setFieldValue("isUpdatedImage", true);
     setImageUrl(URL.createObjectURL(file));
   };
 
-  const handleUpdateCategory = (data) => {};
-  const handleCreateCategory = async (data) => {
-    try {
-      const formData = new FormData();
-      formData.append("Image", data.image);
-      formData.append("Name", data.name);
-      formData.append("SubRepairs", JSON.stringify(data.subCategoriesList));
+  const handleUpdateCategory = useCallback(
+    async (data) => {
+      const fd = new FormData();
+      try {
+        if (data.isUpdatedImage) {
+          fd.append("Image", data.image);
+        }
+        fd.append("Name", data.name);
+        for (const subCategory of data.subCategoriesList) {
+          fd.append("SubRepairs", subCategory);
+        }
 
-      await addMaintenanceService(formData);
-      handleOpenSnackbar({
-        severity: "success",
-        message: t(tokens.toastMessages.createMsg).replace("@", data.name),
-      });
-      router.push(paths.dashboard.maintenance.category);
-    } catch (error) {
-      console.log("Error adding maintenance service", error);
-      handleOpenSnackbar({
-        severity: "error",
-        message: t(tokens.toastMessages.errorMsg),
-      });
-    }
-  };
+        await updateMaintenanceService({
+          newServiceData: fd,
+          serviceId: searchParams.get("id"),
+        });
+        handleOpenSnackbar({
+          severity: "success",
+          message: t(tokens.toastMessages.updateMsg).replace("@", data.name),
+        });
+        router.push(paths.dashboard.maintenance.category);
+      } catch (error) {
+        console.log("Error updating maintenance service", error);
+        handleOpenSnackbar({
+          severity: "error",
+          message: t(tokens.toastMessages.errorMsg),
+        });
+      }
+    },
+    [updateMaintenanceService, handleOpenSnackbar, t, router]
+  );
+
+  const handleCreateCategory = useCallback(
+    async (data) => {
+      try {
+        const formData = new FormData();
+        if (data.isUpdatedImage) {
+          fd.append("Image", data.image);
+        }
+        formData.append("Name", data.name);
+
+        for (const subCategory of data.subCategoriesList) {
+          formData.append("SubRepairs", subCategory);
+        }
+
+        await addMaintenanceService(formData);
+        handleOpenSnackbar({
+          severity: "success",
+          message: t(tokens.toastMessages.createMsg).replace("@", data.name),
+        });
+        router.push(paths.dashboard.maintenance.category);
+      } catch (error) {
+        console.log("Error adding maintenance service", error);
+        handleOpenSnackbar({
+          severity: "error",
+          message: t(tokens.toastMessages.errorMsg),
+        });
+      }
+    },
+    [router, t, addMaintenanceService, handleOpenSnackbar]
+  );
 
   function handleSubmit(values, helpers) {
-    if (updatable) {
+    const isUpdatable = searchParams.get("update") === "1";
+    if (isUpdatable) {
       handleUpdateCategory(values);
     } else {
       handleCreateCategory(values);
@@ -120,8 +168,10 @@ function MaintenanceCategoryForm({ initialValues }) {
         image: initialValues.image,
         subCategoriesList: initialValues.subCategoriesList,
       });
+      setImageUrl(initialValues.image);
+      formik.setFieldValue("isUpdatedImage", false);
     }
-  }, [searchParams]);
+  }, [searchParams, initialValues]);
 
   return (
     <>
@@ -215,7 +265,8 @@ function MaintenanceCategoryForm({ initialValues }) {
                           }}
                         >
                           {imageUrl
-                            ? formik.values?.image?.name
+                            ? formik.values?.image?.name ||
+                              imageUrl?.split("/").pop()
                             : t(tokens.common.uploadImage)}
                         </Typography>
                         <VisuallyHiddenInput
@@ -274,7 +325,7 @@ function MaintenanceCategoryForm({ initialValues }) {
               loading={isAddingMaintenanceService}
               disabled={!formik.isValid || isAddingMaintenanceService}
             >
-              {updatable
+              {searchParams.get("update") === "1"
                 ? t(tokens.common.updateBtn)
                 : t(tokens.common.saveBtn)}
             </LoadingButton>

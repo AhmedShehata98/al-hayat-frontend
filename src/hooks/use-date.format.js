@@ -12,7 +12,16 @@ const useDateFormat = () => {
     Intl.DateTimeFormat(`${translate.language}-SA`, options).format(
       Date.parse(value)
     );
-  return { formatDate };
+  const formatOnlyDate = (value) =>
+    Intl.DateTimeFormat(`${translate.language}-SA`, {
+      // dateStyle: "medium",
+      weekday: "short",
+      dayPeriod: "short",
+      day: "2-digit",
+      month: "long",
+      year: "numeric",
+    }).format(Date.parse(value));
+  return { formatDate, formatOnlyDate };
 };
 
 export default useDateFormat;
