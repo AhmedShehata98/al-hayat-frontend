@@ -111,7 +111,7 @@ function DayItemCard({
                     justifyContent: "space-between",
                     gap: "0.2rem",
                     width: "100%",
-                    px: 2.5,
+                    px: 0.5,
                     py: 1.5,
                   }}
                 >

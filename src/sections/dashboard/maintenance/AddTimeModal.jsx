@@ -12,21 +12,34 @@ import React from "react";
 import { tokens } from "../../../locales/tokens";
 import { getCurrentTime } from "../../../utils/time-format";
 
-const MAINTENANCE_TYPES = [
-  { value: "type 1", label: "type 1" },
-  { value: "type 2", label: "type 2" },
-  { value: "type 3", label: "type 3" },
-  { value: "type 4", label: "type 4" },
-  { value: "type 5", label: "type 5" },
-  { value: "type 6", label: "type 6" },
-  { value: "type 7", label: "type 7" },
-];
 function AddTimeModal({
   onClose,
   onSave = ({ time: { startTime, endTime } }) => {},
 }) {
   const [startTime, setStartTime] = React.useState(getCurrentTime());
   const [endTime, setEndTime] = React.useState(getCurrentTime());
+
+  const handleChangeStartDate = (evt) => {
+    const defaultValue = evt.target.value;
+
+    setStartTime(defaultValue);
+  };
+
+  const handleChangeEndDate = (evt) => {
+    const defaultValue = evt.target.value;
+
+    setEndTime(defaultValue);
+  };
+
+  const handleSave = () => {
+    const shift = {
+      time: {
+        startTime: `${startTime}:00`,
+        endTime: `${endTime}:00`,
+      },
+    };
+    onSave(shift);
+  };
 
   return (
     <Box
@@ -40,7 +53,6 @@ function AddTimeModal({
         height: "100%",
         backgroundColor: "#25252562",
         borderRadius: "10px",
-        padding: 20,
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
@@ -49,13 +61,23 @@ function AddTimeModal({
       <Box
         sx={{
           backgroundColor: "#f6f6f6",
-          width: "95%",
           height: "fit-content",
           paddingX: 2,
           paddingY: 1,
+          flexBasis: "95%",
 
-          "@media screen and (min-width: 768px)": {
-            width: "40%",
+          "@media only screen and (min-width: 568px)": {
+            flexBasis: "75%",
+          },
+
+          "@media only screen and (min-width: 768px)": {
+            flexBasis: "65%",
+          },
+          "@media only screen and (min-width: 992px)": {
+            flexBasis: "55%",
+          },
+          "@media only screen and (min-width: 1200px)": {
+            flexBasis: "45%",
           },
         }}
       >
@@ -111,9 +133,10 @@ function AddTimeModal({
                 type="time"
                 name="from-time"
                 size="small"
+                step="1"
                 value={startTime}
                 label={t(tokens.maintenanceWorkingHours.startHours)}
-                onChange={(evt) => setStartTime(evt.target.value)}
+                onChange={handleChangeStartDate}
               />
             </Box>
             <Box
@@ -132,9 +155,10 @@ function AddTimeModal({
                 type="time"
                 name="from-time"
                 size="small"
+                step="1"
                 label={t(tokens.maintenanceWorkingHours.endHours)}
                 value={endTime}
-                onChange={(evt) => setEndTime(evt.target.value)}
+                onChange={handleChangeEndDate}
               />
             </Box>
           </Stack>
@@ -148,10 +172,7 @@ function AddTimeModal({
               px: 5,
               borderRadius: "6px",
             }}
-            onClick={() => {
-              const shift = { time: { startTime, endTime } };
-              onSave(shift);
-            }}
+            onClick={handleSave}
           >
             {t(tokens.common.saveBtn)}
           </Button>

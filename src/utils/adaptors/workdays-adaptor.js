@@ -42,8 +42,8 @@ export function workingDaysUpdateRequestAdaptor(days = []) {
     isDayOff: !day.isWorkingDay,
     maxRequestsPerDay: day.maxCapacity,
     shifts: day.shifts.map((shift) => ({
-      startTime: `${shift.time.startTime}:00`,
-      endTime: `${shift.time.endTime}:00`,
+      startTime: shift.time.startTime,
+      endTime: shift.time.endTime,
     })),
   }));
 

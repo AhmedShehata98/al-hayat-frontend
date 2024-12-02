@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback } from "react";
 import { Layout as DashboardLayout } from "../../../layouts/dashboard";
 import Head from "next/head";
 import {
@@ -6,26 +6,22 @@ import {
   Box,
   Breadcrumbs,
   Button,
-  CircularProgress,
   Container,
   LinearProgress,
   Link,
   Paper,
   Snackbar,
   Stack,
-  SvgIcon,
   TextField,
   Typography,
 } from "@mui/material";
 import { BreadcrumbsSeparator } from "../../../components/breadcrumbs-separator";
 import { paths } from "../../../paths";
-import PlusIcon from "@untitled-ui/icons-react/build/esm/Plus";
 import NextLink from "next/link";
 import { useTranslation } from "react-i18next";
 import { tokens } from "../../../locales/tokens";
 import CalenderDays from "../../../sections/dashboard/maintenance/CalenderDays";
 import { nanoid } from "@reduxjs/toolkit";
-import VisitsCapacity from "../../../sections/dashboard/maintenance/VisitsCapacity";
 import {
   useGetWorkingHours,
   useUpdateWorkingHours,
@@ -33,7 +29,6 @@ import {
 import {
   DAYS_BACKGROUND_COLORS,
   DAYS_TEXT_COLORS,
-  workDaysResponseAdaptor,
 } from "../../../utils/adaptors/workdays-adaptor";
 import useSnackbar from "../../../hooks/use-snackbar";
 import useWeekDays from "../../../hooks/use-week-days";
@@ -421,6 +416,7 @@ function WorkingHours() {
                     ></Paper>
                   </Box>
                 </Stack>
+
                 <CalenderDays
                   days={weekDaysList}
                   onAdd={handleAddWorkingDay}

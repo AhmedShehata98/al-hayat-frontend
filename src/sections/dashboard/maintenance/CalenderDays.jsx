@@ -90,7 +90,7 @@ function CalenderDays({
         <Stack
           sx={{
             display: "grid",
-            gridTemplateColumns: "1fr 1fr",
+            gridTemplateColumns: "1fr",
             justifyContent: "space-between",
             alignItems: "flex-start",
             gap: "6px",
@@ -98,10 +98,13 @@ function CalenderDays({
             backgroundColor: "#dedede",
             borderRadius: "4px",
 
-            "@media screen and (min-width: 600px)": {
+            "@media screen and (min-width: 576px)": {
+              gridTemplateColumns: "1fr 1fr",
+            },
+            "@media screen and (min-width: 820px)": {
               gridTemplateColumns: "1fr 1fr 1fr",
             },
-            "@media screen and (min-width: 992px)": {
+            "@media screen and (min-width: 1024px)": {
               gridTemplateColumns: "1fr 1fr 1fr 1fr",
             },
           }}
