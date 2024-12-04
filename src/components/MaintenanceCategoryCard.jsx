@@ -21,6 +21,7 @@ import { tokens } from "../locales/tokens";
 import { t } from "i18next";
 import { paths } from "../paths";
 import { useRouter } from "next/navigation";
+import NextImage from "next/image";
 
 function MaintenanceCategoryCard({ service, onUpdate }) {
   const { deleteMaintenanceServiceAsync, isDeletingMaintenanceService } =
@@ -55,13 +56,15 @@ function MaintenanceCategoryCard({ service, onUpdate }) {
     <Card sx={{ maxWidth: 345, borderRadius: "8px" }}>
       <CardActionArea>
         <CardMedia
-          component="img"
+          component={NextImage}
           height="240"
-          image={
-            prefixImageUrl(service.imageUrl) ||
-            "/assets/image-not-found-placeholder.png"
-          }
-          alt="green iguana"
+          image={prefixImageUrl(service.imageUrl)}
+          src={prefixImageUrl(service.imageUrl)}
+          alt={service.imageUrl.split("/").pop()}
+          onError={(evt) => {
+            evt.target.style.backgroundImage =
+              "url('/image-not-found-placeholder.png')";
+          }}
         />
         <CardContent>
           <Typography
@@ -89,7 +92,7 @@ function MaintenanceCategoryCard({ service, onUpdate }) {
           color="primary"
           startIcon={<EditIcon />}
         >
-          update
+          {t(tokens.common.updateBtn)}
         </Button>
         <LoadingButton
           size="small"
@@ -98,7 +101,7 @@ function MaintenanceCategoryCard({ service, onUpdate }) {
           loading={isDeletingMaintenanceService}
           onClick={() => handleDeleteService(service.id)}
         >
-          delete
+          {t(tokens.common.deleteBtn)}
         </LoadingButton>
       </CardActions>
 

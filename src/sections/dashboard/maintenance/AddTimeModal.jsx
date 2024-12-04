@@ -34,8 +34,8 @@ function AddTimeModal({
   const handleSave = () => {
     const shift = {
       time: {
-        startTime: `${startTime}:00`,
-        endTime: `${endTime}:00`,
+        startTime: `${startTime}`,
+        endTime: `${endTime}`,
       },
     };
     onSave(shift);

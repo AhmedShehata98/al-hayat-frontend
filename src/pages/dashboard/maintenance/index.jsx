@@ -1,8 +1,6 @@
 import { Layout as DashboardLayout } from "../../../layouts/dashboard";
 import Head from "next/head";
 import {
-  Alert,
-  AlertTitle,
   Box,
   Breadcrumbs,
   Container,
@@ -22,11 +20,14 @@ import NextLink from "next/link";
 import { useTranslation } from "react-i18next";
 import { tokens } from "../../../locales/tokens";
 import MaintenanceRequestsCard from "../../../sections/dashboard/maintenance/MaintenanceRequestsCard";
-import { useGetMaintenanceRequests } from "../../../hooks/use-maintenance";
 import { useMemo, useState } from "react";
 import { useDebounceValue } from "usehooks-ts";
 import LinearProgressWithLabel from "../../../components/linear-progress-with-label";
 import { calcPercentageFromUnits } from "../../../utils/maintenance-requests";
+import DataListRender from "../../../components/DataListRender";
+import { authAtom } from "../../../atoms/auth-atom";
+import { useRecoilValue } from "recoil";
+import { maintenanceService } from "../../../api/maintaine-services";
 function MaintenanceRequests() {
   const { t } = useTranslation();
   const filterOptions = useMemo(() => {
@@ -58,6 +59,7 @@ function MaintenanceRequests() {
     ];
   }, [t]);
   const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const [currentDate, setCurrentDate] = useState(() => {
     const date = new Date();
     const year = date.getFullYear();
@@ -67,34 +69,33 @@ function MaintenanceRequests() {
   });
 
   const [filterMaintenance, setFilterMaintenance] = useState("all");
-  const [searchTerm, setSearchTerm] = useState("", 400);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [maxRequestsPerDay, setMaxRequestsPerDay] = useState(undefined);
+  const [totalRequestsPerDay, setTotalRequestsPerDay] = useState(undefined);
   const [debounceSearchTerm, setDebounceSearchTerm] = useDebounceValue("", 400);
-  const {
-    maintenanceRequests,
-    isErrorMaintenanceRequests,
-    isLoadingMaintenanceRequests,
-    errorMaintenanceRequests,
-  } = useGetMaintenanceRequests({
-    limit: 10,
-    page,
-    search: debounceSearchTerm,
-    filter: filterMaintenance,
-    VisitDate: currentDate,
-  });
+  const { token } = useRecoilValue(authAtom);
+  // const {
+  //   maintenanceRequests,
+  //   isErrorMaintenanceRequests,
+  //   isLoadingMaintenanceRequests,
+  //   errorMaintenanceRequests,
+  // } = useGetMaintenanceRequests({
+  //   limit: 10,
+  //   page,
+  //   search: debounceSearchTerm,
+  //   filter: filterMaintenance,
+  //   VisitDate: currentDate,
+  // });
 
   const calculateVisits = useMemo(() => {
-    if (
-      !maintenanceRequests?.maxRequestsPerDay ||
-      !maintenanceRequests?.totalRequestsPerDay
-    )
-      return 0;
+    if (!maxRequestsPerDay || !totalRequestsPerDay) return 0;
 
     const totalVisits = calcPercentageFromUnits({
-      totalUnits: maintenanceRequests?.maxRequestsPerDay,
-      currentUnits: maintenanceRequests?.totalRequestsPerDay,
+      totalUnits: maxRequestsPerDay,
+      currentUnits: totalRequestsPerDay,
     });
     return totalVisits;
-  }, [maintenanceRequests, isLoadingMaintenanceRequests]);
+  }, [totalRequestsPerDay, maxRequestsPerDay]);
 
   const handleChangeFilter = (event) => {
     setFilterMaintenance(event.target.value);
@@ -203,22 +204,18 @@ function MaintenanceRequests() {
               </Box>
             </Stack>
           </Stack>
-          {!isLoadingMaintenanceRequests &&
-            maintenanceRequests?.totalRequestsPerDay &&
-            maintenanceRequests?.maxRequestsPerDay && (
-              <Box sx={{ width: "100%", mt: 4 }}>
-                <Typography
-                  variant="h6"
-                  sx={{ display: "flex", alignItems: "center", gap: 2 }}
-                >
-                  {t(tokens.maintenanceWorkingHours.visitsCapacity)}:{" "}
-                  <Typography variant="body1">
-                    {maintenanceRequests.maxRequestsPerDay}
-                  </Typography>
-                </Typography>
-                <LinearProgressWithLabel value={calculateVisits} />
-              </Box>
-            )}
+          {totalRequestsPerDay && maxRequestsPerDay && (
+            <Box sx={{ width: "100%", mt: 4 }}>
+              <Typography
+                variant="h6"
+                sx={{ display: "flex", alignItems: "center", gap: 2 }}
+              >
+                {t(tokens.maintenanceWorkingHours.visitsCapacity)}:{" "}
+                <Typography variant="body1">{maxRequestsPerDay}</Typography>
+              </Typography>
+              <LinearProgressWithLabel value={calculateVisits} />
+            </Box>
+          )}
           <Stack
             sx={{
               width: "100%",
@@ -240,35 +237,46 @@ function MaintenanceRequests() {
               },
             }}
           >
-            {maintenanceRequests &&
-              maintenanceRequests.contentList.map((request) => (
-                <MaintenanceRequestsCard key={request.id} data={request} />
-              ))}
-            {isErrorMaintenanceRequests && (
-              <Alert
-                severity={
-                  errorMaintenanceRequests.status === 404 ? "warning" : "error"
-                }
-                sx={{ width: "100%" }}
-              >
-                <AlertTitle>
-                  {errorMaintenanceRequests.status === 404
-                    ? t(tokens.networkMessages.noFoundResources.title).replace(
-                        "{resourceName}",
-                        t(tokens.maintenance.headingTitle)
-                      )
-                    : t(tokens.networkMessages.somethingWentWrong.title)}
-                </AlertTitle>
-              </Alert>
-            )}
+            <DataListRender
+              dataExtractor={(data) => data.paginatedList}
+              enabled
+              title={t(tokens.maintenance.headingTitle)}
+              queryKey={[
+                "services-requests",
+                token,
+                page,
+                debounceSearchTerm,
+                { filterMaintenance, currentDate },
+              ]}
+              queryFn={() =>
+                maintenanceService.getAllMaintenanceRequests({
+                  token,
+                  limit: 10,
+                  page,
+                  search: debounceSearchTerm,
+                  filter: filterMaintenance,
+                  VisitDate: currentDate,
+                })
+              }
+            >
+              {({ data }) => {
+                setTotalPages(data.totalPages);
+                setTotalRequestsPerDay(data?.totalRequestsPerDay);
+                setMaxRequestsPerDay(data?.maxRequestsPerDay);
+
+                return data.paginatedList.map((request) => (
+                  <MaintenanceRequestsCard key={request.id} data={request} />
+                ));
+              }}
+            </DataListRender>
           </Stack>
         </Container>
         <Pagination
-          count={maintenanceRequests?.totalPages || 1}
-          page={maintenanceRequests?.currentPage || 1}
+          count={totalPages}
+          page={page}
           color="primary"
           onChange={handleChangePage}
-          disabled={isLoadingMaintenanceRequests || isErrorMaintenanceRequests}
+          // disabled={isLoadingMaintenanceRequests || isErrorMaintenanceRequests}
           sx={{
             mt: 6,
           }}

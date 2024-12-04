@@ -112,7 +112,6 @@ function WorkingHours() {
       const maxRequestsPerDay = response?.contentList?.find(
         (item) => item.isDayOff === false
       )?.maxRequestsPerDay;
-      console.log("maxRequestsPerDay: ", maxRequestsPerDay);
       setMaxCapacityInput(maxRequestsPerDay);
     },
   });
@@ -158,7 +157,6 @@ function WorkingHours() {
 
   const handleAddWorkingDay = useCallback(
     (data) => {
-      console.log("add working day: ", data);
       try {
         handleSetWeekdays((prevState) =>
           prevState.map((item) =>
@@ -182,7 +180,6 @@ function WorkingHours() {
 
   const handleAddNewShift = useCallback(
     (data) => {
-      console.log("add new shift: ", data);
       handleSetWeekdays((prevState) =>
         prevState.map((item) =>
           item.day === data.day
@@ -200,37 +197,36 @@ function WorkingHours() {
     [maxCapacityInput]
   );
 
-  const handleDeleteDay = useCallback(
-    (day) => {
-      console.log("delete day: ", day);
-      handleSetWeekdays((prevState) =>
-        prevState.map((item) =>
-          item.day === day
-            ? {
-                ...item,
-                isSelected: false,
-                isWorkingDay: false,
-                shifts: [],
-                maxCapacity: maxCapacityInput,
-              }
-            : item
-        )
-      );
-    },
-    [maxCapacityInput]
-  );
+  const handleDeleteDay = useCallback((day) => {
+    handleSetWeekdays((prevState) =>
+      prevState.map((item) =>
+        item.day === day
+          ? {
+              ...item,
+              isSelected: false,
+              isWorkingDay: false,
+              shifts: [],
+              maxCapacity: 0,
+            }
+          : item
+      )
+    );
+  }, []);
 
   const handleDeleteShift = useCallback(
     (data) => {
-      console.log("delete shift: ", data);
+      console.log("deleted shift: ", data.shift);
       handleSetWeekdays((prevState) =>
         prevState.map((item) =>
           item.day === data.day
             ? {
                 ...item,
-                shifts: item.shifts.filter(
-                  (shift) => shift.id !== data.shiftId
-                ),
+                shifts: item.shifts.filter((shift) => {
+                  return (
+                    shift.time.startTime !== data.shift.startTime &&
+                    shift.time.endTime !== data.shift.endTime
+                  );
+                }),
                 maxCapacity: maxCapacityInput,
               }
             : { ...item, maxCapacity: maxCapacityInput }

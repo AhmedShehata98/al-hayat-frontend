@@ -129,7 +129,7 @@ function DayItemCard({
                 {data.shifts.length >= 2 && (
                   <IconButton
                     onClick={() =>
-                      onDeleteShift({ day: data.day, shiftId: shift.id })
+                      onDeleteShift({ day: data.day, shift: shift.time })
                     }
                     color="error"
                   >

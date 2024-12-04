@@ -3,6 +3,7 @@ import { tokens } from "../tokens";
 export const en = {
   [tokens.common.languageChanged]: "Language changed",
   [tokens.common.loaderScreen.loading]: "getting your data now ...",
+  [tokens.common.loaderScreen.default]: "loading items now...",
   [tokens.common.loaderScreen.userDataLate]:
     "It seems that you bring your data take some time",
   [tokens.common.loaderScreen.description]:
@@ -13,8 +14,10 @@ export const en = {
   [tokens.common.saveBtn]: "save",
   [tokens.common.cancelBtn]: "cancel",
   [tokens.common.updateBtn]: "update",
+  [tokens.common.deleteBtn]: "delete",
   [tokens.common.detailsBtn]: "show details",
   [tokens.common.addBtn]: "add",
+  [tokens.common.tryAgainBtn]: "try again",
   [tokens.appHeader.accountPopover.account]: "account",
   [tokens.appHeader.accountPopover.settings]: "Settings",
   [tokens.appHeader.accountPopover.billing]: "billing",
@@ -524,6 +527,7 @@ export const en = {
 
   [tokens.maintenance.headingTitle]: "maintenance service",
   [tokens.maintenance.status.title]: "status",
+  [tokens.maintenance.searchOrderPlaceholder]: "search with request ID...",
   [tokens.maintenance.status.pending]: "pending",
   [tokens.maintenance.status.cancel]: "cancel",
   [tokens.maintenance.status.accept]: "accept",

@@ -38,9 +38,7 @@ function MaintenanceCategoryForm({ initialValues }) {
           t(tokens.validationMessages.maintenanceCategories.name)
         ), // TODO: Add message translation
 
-        image: Yup.string().required(
-          t(tokens.validationMessages.maintenanceCategories.image)
-        ), // TODO: Add message translation
+        image: Yup.mixed(), // TODO: Add message translation
 
         isUpdatedImage: Yup.boolean().default(false),
 
@@ -172,6 +170,9 @@ function MaintenanceCategoryForm({ initialValues }) {
       formik.setFieldValue("isUpdatedImage", false);
     }
   }, [searchParams, initialValues]);
+
+  console.log(formik.errors);
+  console.log(formik.values);
 
   return (
     <>

@@ -2,14 +2,17 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { maintenanceService } from "../api/maintaine-services";
 import { authAtom } from "../atoms/auth-atom";
 import { useRecoilValue } from "recoil";
-import { maintenanceAdaptor } from "../utils/adaptors/maintenance-adaptor";
+import {
+  maintenanceAdaptor,
+  maintenanceDetailsAdaptor,
+} from "../utils/adaptors/maintenance-adaptor";
 import {
   workDaysResponseAdaptor,
   workingDaysUpdateRequestAdaptor,
 } from "../utils/adaptors/workdays-adaptor";
 import { useEffect, useMemo } from "react";
 
-const QUERIES_KEY = {
+export const QUERIES_KEY = {
   MAINTENANCE_REQUEST_DETAILS: "maintenance-request-details",
   MAINTENANCE_REQUESTS: "maintenance-requests",
   MAINTENANCE_SERVICES: "maintenance-services",
@@ -83,7 +86,7 @@ export const useGetMaintenanceRequestDetails = (maintenanceRequestId) => {
   return {
     maintenanceRequestDetails: {
       ...data,
-      contentList: maintenanceAdaptor(data?.contentList)?.[0],
+      contentList: maintenanceDetailsAdaptor(data?.contentList)?.[0],
     },
     isLoadingMaintenanceRequestDetails,
     isErrorMaintenanceRequestDetails,

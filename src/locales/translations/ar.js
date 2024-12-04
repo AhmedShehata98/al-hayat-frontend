@@ -7,14 +7,17 @@ export const ar = {
     "يبدو انه جلب بياناتك ياخذ بعض الوقت",
   [tokens.common.loaderScreen.description]:
     "يتم التاكد من معلومات المصادقة انتظر لحظة",
+  [tokens.common.loaderScreen.default]: "يتم جلب العناصر الان ...",
   [tokens.common.uploadImage]: "اختر لرفع صورة",
   [tokens.common.processing]: "يتم الرفع ...",
   [tokens.common.or]: "أو",
   [tokens.common.saveBtn]: "حفظ",
   [tokens.common.cancelBtn]: "الغي",
   [tokens.common.updateBtn]: "تعديل",
+  [tokens.common.deleteBtn]: "حذف",
   [tokens.common.detailsBtn]: "شاهد التفاصيل",
   [tokens.common.addBtn]: "اضافة",
+  [tokens.common.tryAgainBtn]: "حاول مرة أخري",
 
   [tokens.appHeader.accountPopover.account]: "الحساب",
   [tokens.appHeader.accountPopover.settings]: "الإعدادات",

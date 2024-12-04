@@ -10,7 +10,7 @@ import {
   Typography,
 } from "@mui/material";
 import Head from "next/head";
-import React, { useState } from "react";
+import { useState } from "react";
 import { tokens } from "../../../../locales/tokens";
 import { paths } from "../../../../paths";
 import { BreadcrumbsSeparator } from "../../../../components/breadcrumbs-separator";
@@ -19,24 +19,20 @@ import { useTranslation } from "react-i18next";
 import { Layout as DashboardLayout } from "../../../../layouts/dashboard";
 import MaintenanceCategoryCard from "../../../../components/MaintenanceCategoryCard";
 import PlusIcon from "@untitled-ui/icons-react/build/esm/Plus";
-import { useGetMaintenanceServices } from "../../../../hooks/use-maintenance";
-import { useSearchParams } from "next/navigation";
-import { useSetRecoilState } from "recoil";
+import { QUERIES_KEY } from "../../../../hooks/use-maintenance";
+import { useRecoilValue, useSetRecoilState } from "recoil";
 import { maintenanceServicesAtom } from "../../../../atoms/maintenance-services-atom";
-
+import DataListRender from "../../../../components/DataListRender";
+import { maintenanceService } from "../../../../api/maintaine-services";
+import { authAtom } from "../../../../atoms/auth-atom";
 const ServiceCategory = () => {
   const { t } = useTranslation();
   const selectedServiceId = useState(null);
   const setSelectedServiceState = useSetRecoilState(maintenanceServicesAtom);
   const [page, setPage] = useState(1);
-  const {
-    maintenanceServices,
-    isErrorMaintenanceServices,
-    isLoadingMaintenanceServices,
-  } = useGetMaintenanceServices({
-    limit: 10,
-    page,
-  });
+  const [totalPages, setTotalPages] = useState(1);
+  const { token } = useRecoilValue(authAtom);
+
   const handleChangePage = (event, page) => {
     setPage(page);
   };
@@ -115,19 +111,36 @@ const ServiceCategory = () => {
               },
             }}
           >
-            {maintenanceServices &&
-              maintenanceServices.contentList.map((service, idx) => (
-                <MaintenanceCategoryCard
-                  key={idx}
-                  service={service}
-                  onUpdate={() => setSelectedServiceState(service)}
-                />
-              ))}
+            <DataListRender
+              dataExtractor={(data) => data.contentList}
+              queryFn={() =>
+                maintenanceService.getAllMaintenanceServices({
+                  token,
+                  limit: 10,
+                  page,
+                })
+              }
+              queryKey={[QUERIES_KEY.MAINTENANCE_SERVICES, token, page]}
+              enabled={Boolean(token)}
+              title={t(tokens.maintenanceCategories.headingTitle)}
+            >
+              {({ data }) => {
+                // setTotalPages(data.totalPages)
+                // setPage(data.)
+                return data.contentList?.map((service) => (
+                  <MaintenanceCategoryCard
+                    key={service.id}
+                    service={service}
+                    onUpdate={() => setSelectedServiceState(service)}
+                  />
+                ));
+              }}
+            </DataListRender>
           </Stack>
         </Container>
         <Pagination
-          count={maintenanceServices?.totalPages || 1}
-          page={maintenanceServices?.currentPage || 1}
+          count={totalPages}
+          page={page}
           color="primary"
           disabled={isLoadingMaintenanceServices || isErrorMaintenanceServices}
           onChange={handleChangePage}

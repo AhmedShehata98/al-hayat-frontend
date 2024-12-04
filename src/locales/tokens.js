@@ -7,6 +7,7 @@ export const tokens = {
       loading: "common.loaderScreen.loading",
       userDataLate: "common.loaderScreen.userDataLate",
       description: "common.loaderScreen.description",
+      default: "common.loaderScreen.default",
     },
     uploadImage: "common.uploadImage",
     processing: "common.processing",
@@ -14,8 +15,10 @@ export const tokens = {
     saveBtn: "common.saveBtn",
     cancelBtn: "common.cancelBtn",
     updateBtn: "common.updateBtn",
+    deleteBtn: "common.deleteBtn",
     addBtn: "common.addBtn",
     detailsBtn: "common.detailsBtn",
+    tryAgainBtn: "common.tryAgainBtn",
   },
   appHeader: {
     accountPopover: {

@@ -30,6 +30,18 @@ import {
 import { usePathname } from "next/navigation";
 import DoneAllIcon from "@mui/icons-material/DoneAll";
 import DoDisturbIcon from "@mui/icons-material/DoDisturb";
+import dynamic from "next/dynamic";
+
+const MapContainer = dynamic(
+  async () => (await import("react-leaflet/MapContainer")).MapContainer,
+  {
+    ssr: false,
+  }
+);
+const LeafletMap = dynamic(
+  async () => await import("../../../../components/leaflet-maps/LeafletMap"),
+  { ssr: false }
+);
 
 function MaintenanceRequestDetailsPage(props) {
   const pathname = usePathname();
@@ -45,6 +57,10 @@ function MaintenanceRequestDetailsPage(props) {
     maintenanceRequestDetails.createdAt || new Date()
   );
   const requestAddress = `${maintenanceRequestDetails?.contentList?.address.postalCode} -${maintenanceRequestDetails?.contentList?.address.city} ${maintenanceRequestDetails?.contentList?.address.country}`;
+  const geolocation = {
+    lat: maintenanceRequestDetails?.contentList?.address.latitude || 30.0136,
+    lng: maintenanceRequestDetails?.contentList?.address.longitude || 31.2081,
+  };
 
   const requestStatusColors = (status) => {
     switch (status) {
@@ -312,6 +328,30 @@ function MaintenanceRequestDetailsPage(props) {
                     />
                   </ServiceSummeryWrapper>
                 )}
+
+                <Stack
+                  sx={{
+                    width: "100%",
+                    height: "478px",
+                    boxShadow: "-2px 2px 4px 0px rgb(0 0 0 / 8%)",
+
+                    "&:hover": {
+                      boxShadow: "-2px 2px 8px 0px rgb(0 0 0 / 20%)",
+                    },
+                  }}
+                >
+                  <MapContainer
+                    center={Object.values(geolocation)}
+                    zoom={10}
+                    scrollWheelZoom={true}
+                    style={{
+                      height: "100%",
+                      width: "100%",
+                    }}
+                  >
+                    <LeafletMap center={Object.values(geolocation)} />
+                  </MapContainer>
+                </Stack>
               </>
             )}
           </Stack>
