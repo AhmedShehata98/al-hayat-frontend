@@ -17,16 +17,21 @@ import { tokens } from "../../../locales/tokens";
 import ReactPlayer from "react-player";
 import { LoadingButton } from "@mui/lab";
 
-function SocialMediaForm(props) {
-  const {
-    initialValues,
-    editMode,
-    onSend,
+const TEXT_FORCE_FOCUSED_STYLES = (fieldValue) => ({
+  "& :nth-child(1)": {
+    color: "#5f5f5f !important",
+    top: fieldValue ? "-15px" : "0",
+  },
+  "& :empty": { bgColor: "red !important" },
+  "& :nth-child(2)": {
+    borderColor: "#a6a6a6 !important",
+    boxShadow: "#a6a6a6 0 0 0 2px !important",
+  },
+});
 
-    onEdit,
-    onSaveChanges,
-    isLoading,
-  } = props;
+function SocialMediaForm(props) {
+  const { initialValues, editMode, onSend, onEdit, onSaveChanges, isLoading } =
+    props;
 
   const { t } = useTranslation();
 
@@ -121,6 +126,12 @@ function SocialMediaForm(props) {
                     type="url"
                     value={values.youtubeUrl}
                     disabled={!editMode}
+                    focused
+                    sx={
+                      !editMode
+                        ? TEXT_FORCE_FOCUSED_STYLES(values.youtubeUrl)
+                        : undefined
+                    }
                   />
                 </Stack>
               </Grid>
@@ -152,6 +163,12 @@ function SocialMediaForm(props) {
                     type="url"
                     value={values.aboutUrl}
                     disabled={!editMode}
+                    focused
+                    sx={
+                      !editMode
+                        ? TEXT_FORCE_FOCUSED_STYLES(values.aboutUrl)
+                        : undefined
+                    }
                   />
                 </Stack>
               </Grid>
@@ -183,6 +200,12 @@ function SocialMediaForm(props) {
                     type="url"
                     value={values.facebookUrl}
                     disabled={!editMode}
+                    focused
+                    sx={
+                      !editMode
+                        ? TEXT_FORCE_FOCUSED_STYLES(values.facebookUrl)
+                        : undefined
+                    }
                   />
                 </Stack>
               </Grid>
@@ -216,6 +239,12 @@ function SocialMediaForm(props) {
                     type="tel"
                     value={values.whatsappNumber}
                     disabled={!editMode}
+                    focused
+                    sx={
+                      !editMode
+                        ? TEXT_FORCE_FOCUSED_STYLES(values.whatsappNumber)
+                        : undefined
+                    }
                   />
                 </Stack>
               </Grid>
@@ -247,6 +276,12 @@ function SocialMediaForm(props) {
                     type="url"
                     value={values.twitterUrl}
                     disabled={!editMode}
+                    focused
+                    sx={
+                      !editMode
+                        ? TEXT_FORCE_FOCUSED_STYLES(values.twitterUrl)
+                        : undefined
+                    }
                   />
                 </Stack>
               </Grid>
@@ -277,6 +312,12 @@ function SocialMediaForm(props) {
                     onChange={handleChange}
                     type="url"
                     value={values.linkedinUrl}
+                    focused
+                    sx={
+                      !editMode
+                        ? TEXT_FORCE_FOCUSED_STYLES(values.linkedinUrl)
+                        : undefined
+                    }
                     disabled={!editMode}
                   />
                 </Stack>
@@ -309,6 +350,12 @@ function SocialMediaForm(props) {
                     type="url"
                     value={values.instagramUrl}
                     disabled={!editMode}
+                    focused
+                    sx={
+                      !editMode
+                        ? TEXT_FORCE_FOCUSED_STYLES(values.instagramUrl)
+                        : undefined
+                    }
                   />
                 </Stack>
               </Grid>
@@ -340,6 +387,12 @@ function SocialMediaForm(props) {
                     type="url"
                     value={values.tiktokUrl}
                     disabled={!editMode}
+                    focused
+                    sx={
+                      !editMode
+                        ? TEXT_FORCE_FOCUSED_STYLES(values.tiktokUrl)
+                        : undefined
+                    }
                   />
                 </Stack>
               </Grid>

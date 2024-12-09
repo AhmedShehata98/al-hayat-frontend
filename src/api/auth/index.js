@@ -8,7 +8,11 @@ class AuthService extends ApiService {
       const res = await this.axios({
         method: "POST",
         url: this.endpoints.auth.generateOTP,
-        params: { phoneNumber },
+        data: {
+          phoneNumber,
+          fcmId: undefined, // FCM ID for Android
+          deviceType: undefined, // Device type for Android
+        },
       });
 
       if (res.data.success && this.isDevelopmentEnvironment) {
