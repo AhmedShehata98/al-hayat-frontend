@@ -207,12 +207,6 @@ const DiscountsListTable = (props) => {
                           <LoadingButton
                             size="small"
                             color="error"
-                            // sx={{
-                            //   opacity: discount.isUsed ? 0.6 : 1,
-                            //   color: discount.isUsed
-                            //     ? "#3C3D37"
-                            //     : "#FF4545 !important",
-                            // }}
                             onClick={() => {
                               if (discount.isUsed) return;
                               handleDeleteDiscount(discount);
