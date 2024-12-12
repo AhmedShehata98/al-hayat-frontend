@@ -4,6 +4,7 @@ import PropTypes from "prop-types";
 import ArrowRightIcon from "@untitled-ui/icons-react/build/esm/ArrowRight";
 import Edit02Icon from "@untitled-ui/icons-react/build/esm/Edit02";
 import {
+  Alert,
   Avatar,
   Box,
   Button,
@@ -27,6 +28,9 @@ import { useRouter } from "next/router";
 import useTranslateCustomer from "../../../hooks/use-translate-customer";
 import { useDeleteUser } from "../../../hooks/use-user";
 import { useTranslation } from "react-i18next";
+import { Snackbar } from "@mui/material";
+import useSnackbar from "../../../hooks/use-snackbar";
+import { tokens } from "../../../locales/tokens";
 
 const useSelectionModel = (customers) => {
   const customerIds = useMemo(() => {
@@ -81,6 +85,14 @@ export const CustomerListTable = (props) => {
   const [_, options] = useTranslation();
   const { deleteUserAsync, isLoading: isDeleting } = useDeleteUser();
   const customerTranslation = useTranslateCustomer();
+  const {
+    anchorOrigin,
+    handleCloseSnackbar,
+    handleOpenSnackbar,
+    openSnackbar,
+    translatedToast,
+    autoHideDuration,
+  } = useSnackbar();
 
   const handleToggleAll = useCallback(
     (event) => {
@@ -96,7 +108,24 @@ export const CustomerListTable = (props) => {
   );
 
   const onBulkDeleteAction = async () => {
-    await deleteUserAsync(selected.at(0).id);
+    try {
+      for (const customerId of selected) {
+        await deleteUserAsync(customerId);
+        handleOpenSnackbar({
+          message: translatedToast.deleteMsg.replace(
+            "@",
+            `# ${customerId.slice(0, 8)}...`
+          ),
+          security: "success",
+        });
+      }
+    } catch (error) {
+      console.error("Error deleting user", error);
+      handleOpenSnackbar({
+        message: tokens.networkMessages.somethingWentWrong.message,
+        severity: "error",
+      });
+    }
   };
 
   const selectedAll = selected.length === users.length;
@@ -136,17 +165,6 @@ export const CustomerListTable = (props) => {
           >
             {isDeleting ? "deleting now ..." : "Delete"}
           </Button>
-          {/* <Button
-            color="inherit"
-            size="small"
-            LinkComponent={NextLink}
-            href={paths.dashboard.customers.edit.replace(
-              ":customerId",
-              selected
-            )}
-          >
-            Edit
-          </Button> */}
         </Stack>
       )}
       <Scrollbar>
@@ -185,9 +203,9 @@ export const CustomerListTable = (props) => {
                         const { checked } = event.target;
 
                         if (checked) {
-                          selectOne(user);
+                          selectOne(user.id);
                         } else {
-                          deselectOne(user);
+                          deselectOne(user.id);
                         }
                       }}
                       value={isSelected}
@@ -284,6 +302,14 @@ export const CustomerListTable = (props) => {
         rowsPerPage={rowsPerPage}
         rowsPerPageOptions={[5, 10, 25]}
       />
+      <Snackbar
+        open={openSnackbar.open}
+        autoHideDuration={autoHideDuration}
+        anchorOrigin={anchorOrigin}
+        onClose={handleCloseSnackbar}
+      >
+        <Alert severity={openSnackbar.severity}>{openSnackbar.message}</Alert>
+      </Snackbar>
     </Box>
   );
 };

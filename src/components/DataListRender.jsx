@@ -71,7 +71,7 @@ function DataListRender({
         </Typography>
       </Alert>
     );
-  if (isSuccess && dataExtractor(data)?.length <= 0)
+  if (isSuccess && dataExtractor(data)?.length <= 0) {
     return (
       <Alert
         severity="info"
@@ -103,6 +103,7 @@ function DataListRender({
         </Typography>
       </Alert>
     );
+  }
   if (isSuccess && data) {
     return children({ data });
   }

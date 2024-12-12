@@ -204,15 +204,25 @@ const DiscountsListTable = (props) => {
                           >
                             <EditIcon />
                           </LoadingButton>
-                          {!discount.isUsed && (
-                            <LoadingButton
-                              size="small"
-                              color="error"
-                              onClick={() => handleDeleteDiscount(discount)}
-                            >
-                              <DeleteForeverIcon />
-                            </LoadingButton>
-                          )}
+                          <LoadingButton
+                            size="small"
+                            color="error"
+                            // sx={{
+                            //   opacity: discount.isUsed ? 0.6 : 1,
+                            //   color: discount.isUsed
+                            //     ? "#3C3D37"
+                            //     : "#FF4545 !important",
+                            // }}
+                            onClick={() => {
+                              if (discount.isUsed) return;
+                              handleDeleteDiscount(discount);
+                            }}
+                            disabled={
+                              isPendingDeleteDiscount || discount.isUsed
+                            }
+                          >
+                            <DeleteForeverIcon />
+                          </LoadingButton>
                         </TableCell>
                       </TableRow>
                     </Fragment>

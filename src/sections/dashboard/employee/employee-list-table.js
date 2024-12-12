@@ -27,6 +27,8 @@ import { useRouter } from "next/router";
 import useTranslateCustomer from "../../../hooks/use-translate-customer";
 import { useDeleteEmployee } from "../../../hooks/use-user";
 import { useTranslation } from "react-i18next";
+import useSnackbar from "../../../hooks/use-snackbar";
+import { tokens } from "../../../locales/tokens";
 
 const useSelectionModel = (customers) => {
   const customerIds = useMemo(() => {
@@ -81,7 +83,14 @@ export const EmployeesListTable = (props) => {
   const customerTranslation = useTranslateCustomer();
 
   const { deleteEmployeeAsync, isLoading: isDeleting } = useDeleteEmployee();
-
+  const {
+    anchorOrigin,
+    handleCloseSnackbar,
+    handleOpenSnackbar,
+    openSnackbar,
+    translatedToast,
+    autoHideDuration,
+  } = useSnackbar();
   const handleToggleAll = useCallback(
     (event) => {
       const { checked } = event.target;
@@ -96,8 +105,24 @@ export const EmployeesListTable = (props) => {
   );
 
   const onBulkDeleteAction = async () => {
-    const employeeId = selected;
-    await deleteEmployeeAsync(employeeId);
+    try {
+      for (const employeeId of selected) {
+        await deleteEmployeeAsync(employeeId);
+        handleOpenSnackbar({
+          message: translatedToast.deleteMsg.replace(
+            "@",
+            `# ${employeeId.slice(0, 8)}...`
+          ),
+          security: "success",
+        });
+      }
+    } catch (error) {
+      console.error("Error deleting user", error);
+      handleOpenSnackbar({
+        message: tokens.networkMessages.somethingWentWrong.message,
+        severity: "error",
+      });
+    }
   };
 
   const selectedAll = selected.length === employees.length;
@@ -133,17 +158,6 @@ export const EmployeesListTable = (props) => {
           <Button color="inherit" size="small" onClick={onBulkDeleteAction}>
             Delete
           </Button>
-          {/* <Button
-            color="inherit"
-            size="small"
-            LinkComponent={NextLink}
-            href={paths.dashboard.customers.edit.replace(
-              ":customerId",
-              selected
-            )}
-          >
-            Edit
-          </Button> */}
         </Stack>
       )}
       <Scrollbar>

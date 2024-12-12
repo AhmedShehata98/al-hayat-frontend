@@ -3,6 +3,7 @@ import { usersServices } from "../api/users";
 import { useEffect } from "react";
 import { authAtom } from "../atoms/auth-atom";
 import { useRecoilState, useRecoilValue } from "recoil";
+import { QUERY_KEY } from "../constants/query-keys";
 
 const useGetAllUsers = ({ search, sortBy, sortDir, limit, page }) => {
   const { token } = useRecoilValue(authAtom);
@@ -39,7 +40,7 @@ const useGetAllEmployees = ({ search, sortBy, sortDir, limit, page }) => {
     error: errorEmployees,
     isSuccess: isSuccessEmployees,
   } = useQuery({
-    queryKey: ["employees", search, sortBy, sortDir, limit, page],
+    queryKey: [QUERY_KEY.EMPLOYEES, search, sortBy, sortDir, limit, page],
     queryFn: () =>
       usersServices.getAllEmployees(
         { search, sortBy, sortDir, limit, page },
@@ -65,7 +66,7 @@ const useGeMeData = (enabled = true) => {
     isSuccess: isSuccessGetMeData,
     error: meErrorMsg,
   } = useQuery({
-    queryKey: ["me"],
+    queryKey: [QUERY_KEY.ME],
     queryFn: () => usersServices.getMe(),
     enabled,
   });
@@ -107,7 +108,7 @@ const useGetUserById = (userId) => {
     isError,
     error,
   } = useQuery({
-    queryKey: ["user", userId],
+    queryKey: [QUERY_KEY.USER_DETAILS, userId],
     queryFn: () => usersServices.getUserById(userId, token),
     enabled: Boolean(userId),
   });
@@ -127,7 +128,7 @@ const useAddUser = () => {
   } = useMutation({
     mutationFn: (user) => usersServices.addUser(user, token),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["users"] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY.USERS] });
     },
   });
 
@@ -146,7 +147,7 @@ const useDeleteUser = () => {
   } = useMutation({
     mutationFn: (userId) => usersServices.deleteUser(userId, token),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["users"] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY.USERS] });
     },
   });
 
@@ -164,7 +165,7 @@ const useDeleteEmployee = () => {
   } = useMutation({
     mutationFn: (userId) => usersServices.deleteEmployee(userId, token),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["employees"] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY.employees] });
     },
   });
 
@@ -184,7 +185,9 @@ const useUpdateUser = () => {
     mutationFn: ({ userId, newUserData }) =>
       usersServices.updateUser(userId, newUserData, token),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["user", "users"] });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEY.USER_DETAILS, QUERY_KEY.USERS],
+      });
     },
   });
 
@@ -204,7 +207,7 @@ const useUpdateMe = () => {
     mutationFn: (newMeData) => usersServices.updateMe(newMeData, token),
     onSuccess: () => {
       // invalidate the 'user' query and the 'me' query
-      queryClient.invalidateQueries(["user", "me"]);
+      queryClient.invalidateQueries([QUERY_KEY.USER_DETAILS, QUERY_KEY.ME]);
     },
   });
 
@@ -226,7 +229,7 @@ const useGetAllDriversUsers = ({ limit, page, orderBy, orderDir, search }) => {
     isError: isErrorGettingDriversUsers,
     error: errorGettingDriversUsersMsg,
   } = useQuery({
-    queryKey: ["drivers"],
+    queryKey: [QUERY_KEY.DRIVERS],
     queryFn: () =>
       usersServices.getDriversUsers(
         { limit, page, orderBy, orderDir, search },
