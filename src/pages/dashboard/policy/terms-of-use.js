@@ -164,7 +164,7 @@ const TermsOfUse = () => {
             <Divider />
             <TinyMceEditor
               initialValue={
-                data?.[data?.length - 1].usageAndPrivacyPolicy || ""
+                data?.[data?.length - 1]?.usageAndPrivacyPolicy || ""
               }
               disabled={!editMode}
               onDataChange={(newValue) => {
@@ -180,7 +180,7 @@ const TermsOfUse = () => {
               {t(tokens.termsOfUse.buyingAndSellTermsHeading)}
             </Typography>
             <TinyMceEditor
-              initialValue={data?.[data?.length - 1].buyingAndSelling || ""}
+              initialValue={data?.[data?.length - 1]?.buyingAndSelling || ""}
               disabled={!editMode}
               onDataChange={(newValue) => {
                 termsOfBuyAndSellRef.current = newValue;

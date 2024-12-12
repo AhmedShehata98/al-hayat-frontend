@@ -56,6 +56,7 @@
     "apexcharts": "3.35.5",
     "aws-amplify": "5.0.9",
     "axios": "^1.7.2",
+    "browserslist": "^4.24.2",
     "cookies-next": "^4.2.1",
     "date-fns": "2.29.3",
     "dayjs": "^1.11.11",
