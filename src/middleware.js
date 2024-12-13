@@ -23,13 +23,18 @@ const checkValidToken = async (token) => {
 export default async function middleware(req) {
   const token = req.cookies.get("token")?.value;
   const isValidToken = await checkValidToken(token);
+  const isLoginPage = req.nextUrl.pathname === "/";
+  const isDashboardPage = req.nextUrl.pathname.startsWith("/dashboard");
 
-  if (!isValidToken) {
+  if (isLoginPage && isValidToken) {
+    return NextResponse.redirect(new URL(paths.dashboard.index, req.url));
+  }
+
+  if (isDashboardPage && !isValidToken) {
     return NextResponse.redirect(new URL(paths.index, req.url));
   }
-  return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*"],
+  matcher: ["/:path*"],
 };
