@@ -1,3 +1,5 @@
+"use strict";
+
 import {
   Box,
   Breadcrumbs,
@@ -90,64 +92,68 @@ const ServiceCategory = () => {
               </Stack>
             </Stack>
           </Stack>
-          <Stack
-            sx={{
-              width: "100%",
-              display: "grid",
-              gridTemplateColumns: "1fr",
-              gap: 3,
-              marginTop: 7,
-              "@media screen and (min-width: 540px)": {
-                gridTemplateColumns: "1fr 1fr",
-              },
-              "@media screen and (min-width: 768px)": {
-                gridTemplateColumns: "1fr 1fr 1fr",
-              },
-              "@media screen and (min-width: 992px)": {
-                gridTemplateColumns: "1fr 1fr 1fr 1fr",
-              },
-              "@media screen and (min-width: 1330px)": {
-                gridTemplateColumns: "1fr 1fr 1fr 1fr 1fr",
-              },
-            }}
+
+          <DataListRender
+            dataExtractor={(data) => data.contentList}
+            queryFn={() =>
+              maintenanceService.getAllMaintenanceServices({
+                token,
+                limit: 10,
+                page,
+              })
+            }
+            queryKey={[QUERIES_KEY.MAINTENANCE_SERVICES, token, page]}
+            enabled={Boolean(token)}
+            title={t(tokens.maintenanceCategories.headingTitle)}
           >
-            <DataListRender
-              dataExtractor={(data) => data.contentList}
-              queryFn={() =>
-                maintenanceService.getAllMaintenanceServices({
-                  token,
-                  limit: 10,
-                  page,
-                })
-              }
-              queryKey={[QUERIES_KEY.MAINTENANCE_SERVICES, token, page]}
-              enabled={Boolean(token)}
-              title={t(tokens.maintenanceCategories.headingTitle)}
-            >
-              {({ data }) => {
-                // setTotalPages(data.totalPages)
-                // setPage(data.)
-                return data.contentList?.map((service) => (
-                  <MaintenanceCategoryCard
-                    key={service.id}
-                    service={service}
-                    onUpdate={() => setSelectedServiceState(service)}
+            {({ data }) => {
+              // setTotalPages(data.totalPages)
+              // setPage(data.)
+              return (
+                <Stack flexDirection={"column"}>
+                  <Stack
+                    sx={{
+                      width: "100%",
+                      display: "grid",
+                      gridTemplateColumns: "1fr",
+                      gap: 3,
+                      marginTop: 7,
+                      "@media screen and (min-width: 540px)": {
+                        gridTemplateColumns: "1fr 1fr",
+                      },
+                      "@media screen and (min-width: 768px)": {
+                        gridTemplateColumns: "1fr 1fr 1fr",
+                      },
+                      "@media screen and (min-width: 992px)": {
+                        gridTemplateColumns: "1fr 1fr 1fr",
+                      },
+                      "@media screen and (min-width: 1330px)": {
+                        gridTemplateColumns: "1fr 1fr 1fr 1fr",
+                      },
+                    }}
+                  >
+                    {data.contentList?.map((service) => (
+                      <MaintenanceCategoryCard
+                        key={service.id}
+                        service={service}
+                        onUpdate={() => setSelectedServiceState(service)}
+                      />
+                    ))}
+                  </Stack>
+                  <Pagination
+                    count={data.contentList?.totalPages || 1}
+                    page={data.contentList?.currentPage || page}
+                    color="primary"
+                    onChange={handleChangePage}
+                    sx={{
+                      mt: 6,
+                    }}
                   />
-                ));
-              }}
-            </DataListRender>
-          </Stack>
+                </Stack>
+              );
+            }}
+          </DataListRender>
         </Container>
-        <Pagination
-          count={totalPages}
-          page={page}
-          color="primary"
-          disabled={isLoadingMaintenanceServices || isErrorMaintenanceServices}
-          onChange={handleChangePage}
-          sx={{
-            mt: 6,
-          }}
-        />
       </Box>
     </>
   );
