@@ -39,22 +39,25 @@ class ProductsServices extends ApiService {
     }
   }
 
-  async getProductById(productId) {
+  async getProductById({ productId, token }) {
     try {
-      const res = await this.privateAxios.get(
-        `${this.endpoints.products.readById}/${productId}`
-      );
+      const res = await this.privateAxios({
+        method: "GET",
+        url: `${this.endpoints.products.readById}/${productId}`,
+        headers: { Authorization: token },
+      });
       return res.data;
     } catch (error) {
       throw error;
     }
   }
 
-  async createProduct(product) {
+  async createProduct({ product, token }) {
     try {
       const res = await this.privateAxios.post(
         this.endpoints.products.create,
-        product
+        product,
+        { headers: { Authorization: token } }
       );
 
       return res.data;
@@ -63,11 +66,12 @@ class ProductsServices extends ApiService {
     }
   }
 
-  async updateProduct(productId, product) {
+  async updateProduct({ newProduct, token }) {
     try {
       const res = await this.privateAxios.patch(
         `${this.endpoints.products.update}`,
-        product
+        newProduct,
+        { headers: { Authorization: token } }
       );
 
       return res.data;
@@ -76,281 +80,18 @@ class ProductsServices extends ApiService {
     }
   }
 
-  async deleteProduct(productId) {
+  async deleteProduct({ productId, token }) {
     try {
-      const res = await this.privateAxios.delete(
-        `${this.endpoints.products.delete}${productId}`
-      );
-      return res.data;
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  async getPartById(partId) {
-    try {
-      const res = await this.axios.get(
-        `${this.endpoints.products.partById}${partId}`
-      );
-      return res.data;
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  async getAllProductDescription() {
-    try {
-      const res = await this.axios.get(
-        this.endpoints.products.description.read
-      );
-      return res.data;
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  async getProductDescriptionById(productDescriptionId) {
-    try {
-      const res = await this.axios.get(
-        `${this.endpoints.products.description.read}/${productDescriptionId}`
-      );
-      return res.data;
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  async createProductDescription(productDescription) {
-    const { manifactringNumber, trademark, type, size } = productDescription;
-    try {
-      const req = await this.privateAxios({
-        method: "POST",
-        url: this.endpoints.products.description.create,
-        data: { manifactringNumber, trademark, type, size },
+      const res = await this.privateAxios({
+        method: "DELETE",
+        url: `${this.endpoints.products.delete}${productId}`,
+        headers: { Authorization: token },
       });
-
-      return req.data;
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  async updateProductDescription(productDescriptionId, productDescription) {
-    try {
-      const res = await this.privateAxios.patch(
-        `${this.endpoints.products.description.update}${productDescriptionId}`,
-        productDescription
-      );
-      return res.data;
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  async deleteProductDescription(productDescriptionId) {
-    try {
-      const res = await this.privateAxios.delete(
-        `${this.endpoints.products.description.delete}${productDescriptionId}`
-      );
-
       return res.data;
     } catch (error) {
       throw error;
     }
   }
 }
-// Old version
-//
-// getProducts(request = {}) {
-//   const { filters, page, rowsPerPage } = request;
-
-//   let data = deepCopy(products);
-//   let count = data.length;
-
-//   if (typeof filters !== 'undefined') {
-//     data = data.filter((product) => {
-//       if (typeof filters.name !== 'undefined' && filters.name !== '') {
-//         const nameMatched = product.name.toLowerCase().includes(filters.name.toLowerCase());
-
-//         if (!nameMatched) {
-//           return false;
-//         }
-//       }
-
-//       // It is possible to select multiple category options
-//       if (typeof filters.category !== 'undefined' && filters.category.length > 0) {
-//         const categoryMatched = filters.category.includes(product.category);
-
-//         if (!categoryMatched) {
-//           return false;
-//         }
-//       }
-
-//       // It is possible to select multiple status options
-//       if (typeof filters.status !== 'undefined' && filters.status.length > 0) {
-//         const statusMatched = filters.status.includes(product.status);
-
-//         if (!statusMatched) {
-//           return false;
-//         }
-//       }
-
-//       // Present only if filter required
-//       if (typeof filters.inStock !== 'undefined') {
-//         const stockMatched = product.inStock === filters.inStock;
-
-//         if (!stockMatched) {
-//           return false;
-//         }
-//       }
-
-//       return true;
-//     });
-//     count = data.length;
-//   }
-
-//   if (typeof page !== 'undefined' && typeof rowsPerPage !== 'undefined') {
-//     data = applyPagination(data, page, rowsPerPage);
-//   }
-
-//   return Promise.resolve({
-//     data,
-//     count
-//   });
-// }
-// getProducts(request = {}) {
-//   const { filters, page, rowsPerPage } = request;
-
-//   let data = deepCopy(products);
-//   let count = data.length;
-
-//   if (typeof filters !== 'undefined') {
-//     data = data.filter((product) => {
-//       if (typeof filters.name !== 'undefined' && filters.name !== '') {
-//         const nameMatched = product.name.toLowerCase().includes(filters.name.toLowerCase());
-
-//         if (!nameMatched) {
-//           return false;
-//         }
-//       }
-
-//       // It is possible to select multiple category options
-//       if (typeof filters.category !== 'undefined' && filters.category.length > 0) {
-//         const categoryMatched = filters.category.includes(product.category);
-
-//         if (!categoryMatched) {
-//           return false;
-//         }
-//       }
-
-//       // It is possible to select multiple status options
-//       if (typeof filters.status !== 'undefined' && filters.status.length > 0) {
-//         const statusMatched = filters.status.includes(product.status);
-
-//         if (!statusMatched) {
-//           return false;
-//         }
-//       }
-
-//       // Present only if filter required
-//       if (typeof filters.inStock !== 'undefined') {
-//         const stockMatched = product.inStock === filters.inStock;
-
-//         if (!stockMatched) {
-//           return false;
-//         }
-//       }
-
-//       return true;
-//     });
-//     count = data.length;
-//   }
-
-//   if (typeof page !== 'undefined' && typeof rowsPerPage !== 'undefined') {
-//     data = applyPagination(data, page, rowsPerPage);
-//   }
-
-//   return Promise.resolve({
-//     data,
-//     count
-//   });
-// }
-
-// async getProducts(request = {}) {
-//   const { filters, page, rowsPerPage } = request;
-
-//   let res = await axios({
-//     baseURL: this.BASE_URL,
-//     url: this.ENDPOINTS.products,
-//     params: {
-//       offset: page,
-//       limit: rowsPerPage,
-//     },
-//   });
-//   let count = res.data.length;
-
-//   // if (typeof filters !== "undefined") {
-//   //   data = data.filter((product) => {
-//   //     if (typeof filters.name !== "undefined" && filters.name !== "") {
-//   //       const nameMatched = product.name
-//   //         .toLowerCase()
-//   //         .includes(filters.name.toLowerCase());
-
-//   //       if (!nameMatched) {
-//   //         return false;
-//   //       }
-//   //     }
-
-//   //     // It is possible to select multiple category options
-//   //     if (
-//   //       typeof filters.category !== "undefined" &&
-//   //       filters.category.length > 0
-//   //     ) {
-//   //       const categoryMatched = filters.category.includes(product.category);
-
-//   //       if (!categoryMatched) {
-//   //         return false;
-//   //       }
-//   //     }
-
-//   //     // It is possible to select multiple status options
-//   //     if (
-//   //       typeof filters.status !== "undefined" &&
-//   //       filters.status.length > 0
-//   //     ) {
-//   //       const statusMatched = filters.status.includes(product.status);
-
-//   //       if (!statusMatched) {
-//   //         return false;
-//   //       }
-//   //     }
-
-//   //     // Present only if filter required
-//   //     if (typeof filters.inStock !== "undefined") {
-//   //       const stockMatched = product.inStock === filters.inStock;
-
-//   //       if (!stockMatched) {
-//   //         return false;
-//   //       }
-//   //     }
-
-//   //     return true;
-//   //   });
-//   //   count = data.length;
-//   // }
-
-//   // if (typeof page !== 'undefined' && typeof rowsPerPage !== 'undefined') {
-//   //   data = applyPagination(data, page, rowsPerPage);
-//   // }
-
-//   // return Promise.resolve({
-//   //   data,
-//   //   count,
-//   // });
-//   return {
-//     data: res.data,
-//     count,
-//   };
-// }
 
 export const productsService = new ProductsServices();

@@ -17,11 +17,10 @@ function CarouselCard({ data }) {
 
   const { mutateAsync: deleteCarouselAsync, isPending: isDeleting } =
     useMutation({
-      mutationKey: ["deleteCarousel"],
       mutationFn: ({ imageName }) =>
         minioService.deleteCarouselImage({ token, imageName }),
       onSuccess: () => {
-        queryClient.invalidateQueries("carousel");
+        queryClient.invalidateQueries({ queryKey: ["carousel"] });
         toast.success(t(tokens.carousel.messages.deleteSuccess), {
           duration: 3000,
         });

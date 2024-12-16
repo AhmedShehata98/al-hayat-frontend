@@ -23,6 +23,7 @@ import { tokens } from "../../../locales/tokens";
 import CalenderDays from "../../../sections/dashboard/maintenance/CalenderDays";
 import { nanoid } from "@reduxjs/toolkit";
 import {
+  QUERIES_KEY as MAINTENANCE_QUERIES_KEY,
   useGetWorkingHours,
   useUpdateWorkingHours,
 } from "../../../hooks/use-maintenance";
@@ -32,6 +33,8 @@ import {
 } from "../../../utils/adaptors/workdays-adaptor";
 import useSnackbar from "../../../hooks/use-snackbar";
 import useWeekDays from "../../../hooks/use-week-days";
+import { useQueryClient } from "@tanstack/react-query";
+import { QUERY_KEY } from "../../../constants/query-keys";
 
 const DAYS = {
   saturday: "saturday",
@@ -104,6 +107,7 @@ const INITIAL_WEEKDAYS_LIST = [
 
 function WorkingHours() {
   const { t } = useTranslation();
+  const queryClient = useQueryClient();
 
   const [maxCapacityInput, setMaxCapacityInput] = React.useState(0);
 
@@ -135,6 +139,9 @@ function WorkingHours() {
           maxRequestsPerDay: maxCapacityInput,
         }));
         await updateWorkingHoursAsync(withCapacity);
+        queryClient.invalidateQueries({
+          queryKey: [MAINTENANCE_QUERIES_KEY.WORKING_HOURS],
+        });
         handleOpenSnackbar({
           severity: "success",
           message: t(tokens.toastMessages.updateMsg),

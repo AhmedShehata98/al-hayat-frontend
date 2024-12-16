@@ -1,3 +1,5 @@
+"use strict";
+
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { productsService } from "../api/products/index";
 import { useRecoilValue } from "recoil";
@@ -5,7 +7,6 @@ import { authAtom } from "../atoms/auth-atom";
 
 const useGetAllProducts = ({ search, sortDir, sortBy, page, limit }) => {
   const authState = useRecoilValue(authAtom);
-
 
   const {
     data: products,
@@ -44,6 +45,8 @@ const useGetAllProducts = ({ search, sortDir, sortBy, page, limit }) => {
 };
 
 const useGetProductById = (productId) => {
+  const { token } = useRecoilValue(authAtom);
+
   const {
     data: product,
     isLoading: isLoadingProduct,
@@ -52,7 +55,7 @@ const useGetProductById = (productId) => {
     error: errorProduct,
   } = useQuery({
     queryKey: ["product", productId],
-    queryFn: () => productsService.getProductById(productId),
+    queryFn: () => productsService.getProductById({ productId, token }),
     enabled: Boolean(productId),
   });
 
@@ -68,14 +71,14 @@ const useGetProductById = (productId) => {
 
 const useAddProduct = () => {
   const queryClient = useQueryClient();
-
+  const { token } = useRecoilValue(authAtom);
   const {
     mutateAsync: addProductAsync,
     isLoading,
     isError,
     error,
   } = useMutation({
-    mutationFn: (product) => productsService.createProduct(product),
+    mutationFn: (product) => productsService.createProduct({ product, token }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["products"] });
     },
@@ -86,6 +89,7 @@ const useAddProduct = () => {
 
 const useUpdateProduct = () => {
   const queryClient = useQueryClient();
+  const { token } = useRecoilValue(authAtom);
 
   const {
     mutateAsync: updateProductAsync,
@@ -94,7 +98,7 @@ const useUpdateProduct = () => {
     error,
   } = useMutation({
     mutationFn: ({ productId, newProduct }) =>
-      productsService.updateProduct(productId, newProduct),
+      productsService.updateProduct({ newProduct, token }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["products"] });
     },
@@ -105,6 +109,7 @@ const useUpdateProduct = () => {
 
 const useDeleteProduct = () => {
   const queryClient = useQueryClient();
+  const { token } = useRecoilValue(authAtom);
 
   const {
     mutateAsync: deleteProductAsync,
@@ -113,7 +118,8 @@ const useDeleteProduct = () => {
     isSuccess,
     error,
   } = useMutation({
-    mutationFn: (productId) => productsService.deleteProduct(productId),
+    mutationFn: (productId) =>
+      productsService.deleteProduct({ productId, token }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["products"] });
     },
@@ -122,67 +128,10 @@ const useDeleteProduct = () => {
   return { deleteProductAsync, isLoading, isError, error, isSuccess };
 };
 
-//
-// Product Description
-const useAddProductDescription = () => {
-  const {
-    mutateAsync: addProductDescriptionAsync,
-    isLoading,
-    isError,
-    error,
-  } = useMutation({
-    mutationFn: (productDescription) =>
-      productsService.createProductDescription(productDescription),
-  });
-
-  return { addProductDescriptionAsync, isLoading, isError, error };
-};
-
-const useGetAllProductDescription = () => {
-  const {
-    data: productDescription,
-    isLoading: isLoadingProductDescription,
-    isError: isErrorProductDescription,
-    error: errorProductDescription,
-  } = useQuery({
-    queryKey: ["product-description"],
-    queryFn: () => productsService.getAllProductDescription(),
-  });
-
-  return {
-    productDescription,
-    isLoadingProductDescription,
-    isErrorProductDescription,
-    errorProductDescription,
-  };
-};
-
-const useGetProductDescriptionById = (productId) => {
-  const {
-    data: productDescription,
-    isLoading: isLoadingProductDescription,
-    isError: isErrorProductDescription,
-    error: errorProductDescription,
-  } = useQuery({
-    queryKey: ["product-description"],
-    queryFn: () => productsService.getProductDescriptionById(productId),
-  });
-
-  return {
-    productDescription,
-    isLoadingProductDescription,
-    isErrorProductDescription,
-    errorProductDescription,
-  };
-};
-
 export {
   useGetAllProducts,
   useGetProductById,
   useAddProduct,
   useUpdateProduct,
   useDeleteProduct,
-  useAddProductDescription,
-  useGetAllProductDescription,
-  useGetProductDescriptionById,
 };

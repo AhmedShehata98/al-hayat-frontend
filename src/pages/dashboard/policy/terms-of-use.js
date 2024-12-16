@@ -33,10 +33,11 @@ const TermsOfUse = () => {
   const [editMode, setEditMode] = useState(false);
   const queryClient = useQueryClient();
   const { token } = useRecoilValue(authAtom);
-  const termsOfPrivacyAndUseRef = useRef();
-  const termsOfBuyAndSellRef = useRef();
-  const { data } = useQuery({
+  const termsOfPrivacyAndUseRef = useRef(null);
+  const termsOfBuyAndSellRef = useRef(null);
+  const { data: policy } = useQuery({
     queryKey: ["terms-of-use", token],
+    select: (data) => data?.[0],
     queryFn: () => termsAndConditionsService.termsAndPolicy({ token }),
   });
 
@@ -45,14 +46,8 @@ const TermsOfUse = () => {
       termsAndConditionsService.addTermsAndPolicy({ token, data }),
     onSuccess: () => {
       queryClient.invalidateQueries(["terms-of-use"]);
-    },
-  });
-
-  const { mutateAsync: updateTermsAndPolicyAsync } = useMutation({
-    mutationFn: (data) =>
-      termsAndConditionsService.updateTermsAndPolicy({ token, data }),
-    onSuccess: () => {
-      queryClient.invalidateQueries(["terms-of-use"]);
+      termsOfPrivacyAndUseRef.current = null;
+      termsOfBuyAndSellRef.current = null;
     },
   });
 
@@ -60,58 +55,32 @@ const TermsOfUse = () => {
     setEditMode(true);
   };
 
-  const handleCreatePolicy = useCallback(
-    async (policy) => {
-      await addTermsAndPolicyAsync(policy);
-    },
-    [addTermsAndPolicyAsync]
-  );
-
-  const handleUpdatePolicy = useCallback(
-    async (policy) => {
-      const newPolicy = {
-        usageAndPrivacyPolicy: data.usageAndPrivacyPolicy,
-        buyingAndSelling: termsOfBuyAndSellRef.buyingAndSelling,
-        ...policy,
-      };
-      await addTermsAndPolicyAsync(newPolicy);
-    },
-    [data, addTermsAndPolicyAsync]
-  );
-
   const handleSaveChanges = useCallback(async () => {
-    const policy = {
-      usageAndPrivacyPolicy: termsOfPrivacyAndUseRef.current,
-      buyingAndSelling: termsOfBuyAndSellRef.current,
+    const newPolicy = {
+      usageAndPrivacyPolicy:
+        termsOfPrivacyAndUseRef.current || policy.usageAndPrivacyPolicy,
+      buyingAndSelling: termsOfBuyAndSellRef.current || policy.buyingAndSelling,
     };
-    const isExistingData = data?.every(
-      (item) => item.buyingAndSelling && item.usageAndPrivacyPolicy
-    );
 
     try {
-      if (isExistingData) {
-        await handleUpdatePolicy(policy);
-      } else {
-        await handleCreatePolicy(policy);
-      }
+      await addTermsAndPolicyAsync(newPolicy);
       setEditMode(false);
     } catch (error) {
       console.error(error);
       toast.error(t(tokens.networkMessages.somethingWentWrong.message));
     }
   }, [
-    handleUpdatePolicy,
-    handleCreatePolicy,
+    addTermsAndPolicyAsync,
     t,
     termsOfPrivacyAndUseRef.current,
     termsOfBuyAndSellRef.current,
-    data,
+    policy,
   ]);
 
   return (
     <>
       <Head>
-        <title>Dashboard: terms and conditions | Devias Kit PRO</title>
+        <title>Dashboard: terms and conditions | Al-hayah </title>
       </Head>
       <Box
         component="main"
@@ -163,9 +132,7 @@ const TermsOfUse = () => {
             </Typography>
             <Divider />
             <TinyMceEditor
-              initialValue={
-                data?.[data?.length - 1]?.usageAndPrivacyPolicy || ""
-              }
+              initialValue={policy?.usageAndPrivacyPolicy || ""}
               disabled={!editMode}
               onDataChange={(newValue) => {
                 termsOfPrivacyAndUseRef.current = newValue;
@@ -180,7 +147,7 @@ const TermsOfUse = () => {
               {t(tokens.termsOfUse.buyingAndSellTermsHeading)}
             </Typography>
             <TinyMceEditor
-              initialValue={data?.[data?.length - 1]?.buyingAndSelling || ""}
+              initialValue={policy?.buyingAndSelling || ""}
               disabled={!editMode}
               onDataChange={(newValue) => {
                 termsOfBuyAndSellRef.current = newValue;

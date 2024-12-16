@@ -25,7 +25,7 @@ import usePagination from "../../../hooks/use-pagination";
 import NonAssignedOrders from "../../../sections/dashboard/order-schedule/non-assigned-orders";
 import AssignedOrders from "../../../sections/dashboard/order-schedule/assigned-orders";
 import AutoFixHighIcon from "@mui/icons-material/AutoFixHigh";
-import { autoAssignOrders } from "../../../utils/orders-helpers";
+import { autoAssignOrders, ORDER_STATUS } from "../../../utils/orders-helpers";
 import { useGetAllDriversUsers } from "../../../hooks/use-user";
 import useTranslateOrderSchedule from "../../../hooks/use-translate-order-schedule";
 import { useRecoilState } from "recoil";
@@ -69,7 +69,7 @@ const ScheduledOrderPage = () => {
       search: undefined,
       sortDirection: undefined,
       sortOrder: undefined,
-      status: undefined,
+      status: ORDER_STATUS.get(0),
     });
 
   const { drivers, isSuccessGettingDriversUsers } = useGetAllDriversUsers({

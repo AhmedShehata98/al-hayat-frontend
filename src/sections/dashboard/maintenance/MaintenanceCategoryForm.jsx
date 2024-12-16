@@ -125,7 +125,7 @@ function MaintenanceCategoryForm({ initialValues }) {
       try {
         const formData = new FormData();
         if (data.isUpdatedImage) {
-          fd.append("Image", data.image);
+          formData.append("Image", data.image);
         }
         formData.append("Name", data.name);
 

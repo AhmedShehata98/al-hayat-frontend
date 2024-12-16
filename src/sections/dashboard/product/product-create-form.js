@@ -12,23 +12,18 @@ import {
   CardContent,
   Grid,
   Typography,
-  FormControlLabel,
-  Switch,
   Box,
   TextField,
-  Autocomplete,
   MenuItem,
   CircularProgress,
   Chip,
   Avatar,
   Paper,
-  Checkbox,
 } from "@mui/material";
 import { paths } from "../../../paths";
 
 import { LoadingButton } from "@mui/lab";
 import { useRouter } from "next/router";
-import { useAddProduct, useUpdateProduct } from "../../../hooks/use-product";
 import {
   parseCategoryAnswers,
   parseCategoryQuestions,
@@ -45,7 +40,6 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ImageInput from "../../components/image-input";
 import useTranslateDiscounts from "../../../hooks/use-translate-discounts";
 import { prefixImageUrl } from "../../../utils/prefixImageUrl";
-import { useDebounceValue } from "usehooks-ts";
 import { carsList } from "./product-create_cars-list";
 import { useValidationMessages } from "../../../hooks/use-validation-messages";
 
@@ -201,7 +195,7 @@ const ProductCreateForm = (props) => {
         const productId = searchParams.get("id");
         productData.append("id", productId);
 
-        await onUpdateProduct({ productId, newProduct: productData });
+        await onUpdateProduct({ newProduct: productData });
         router.push(paths.dashboard.products.index);
         handleOpenSnackbar({
           message: translatedToast.updateMsg.replace(

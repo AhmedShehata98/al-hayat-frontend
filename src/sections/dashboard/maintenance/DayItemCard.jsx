@@ -118,13 +118,13 @@ function DayItemCard({
                   <Typography variant="body2" color={"text.secondary"}>
                     {t(tokens.maintenanceWorkingHours.from)}
                   </Typography>
-                  <Typography variant="body1">
+                  <Typography variant="body2">
                     {shift.time.startTime}
                   </Typography>
                   <Typography variant="body2" color={"text.secondary"}>
                     {t(tokens.maintenanceWorkingHours.to)}
                   </Typography>
-                  <Typography variant="body1">{shift.time.endTime}</Typography>
+                  <Typography variant="body2">{shift.time.endTime}</Typography>
                 </Box>
                 {data.shifts.length >= 2 && (
                   <IconButton

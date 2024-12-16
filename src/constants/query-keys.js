@@ -3,5 +3,6 @@ export const QUERY_KEY = {
   EMPLOYEES: "employees",
   ME: "me",
   USER_DETAILS: "user",
+  COUPONS: "coupons",
   DRIVERS: "drivers",
 };

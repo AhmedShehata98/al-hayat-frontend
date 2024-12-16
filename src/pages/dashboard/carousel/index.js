@@ -40,7 +40,7 @@ const CarouselPage = () => {
           image,
         }),
       onSuccess: () => {
-        queryClient.invalidateQueries("carousel");
+        queryClient.invalidateQueries({ queryKey: ["carousel"] });
         toast.success(t(tokens.carousel.messages.uploadSuccess), {
           duration: 3000,
         });

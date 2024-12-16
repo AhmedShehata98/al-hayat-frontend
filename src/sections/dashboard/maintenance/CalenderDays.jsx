@@ -118,10 +118,6 @@ function CalenderDays({
                 onDeleteShift={onDeleteShift}
                 onAdd={handleAdd}
                 onAddShift={handleAddShift}
-                // shifts={selectedDays.find((d) => d.day === day)?.shifts || []}
-                // activeColor={activeColor}
-                // isSelected={isSelected}
-                // textActiveColor={textActiveColor}
               />
             );
           })}

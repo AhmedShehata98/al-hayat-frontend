@@ -84,7 +84,8 @@ function CarouselAddForm({ onSend, isAdding }) {
         // },
 
         width: "100%",
-        maxWidth: 400,
+        maxWidth: 450,
+        maxHeight: 250,
         aspectRatio: 1.5,
         boxShadow: "0px 6px 10px rgba(0, 0, 0, 0.3)",
       }}

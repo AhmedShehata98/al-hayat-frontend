@@ -1,19 +1,18 @@
 import { useCallback } from "react";
 import {
-    Alert,
-    AlertTitle,
-    Box,
-    Breadcrumbs,
-    Button,
-    Container, Grid,
-    LinearProgress,
-    Link,
-    Pagination,
-    Paper,
-    Snackbar,
-    Stack,
-    SvgIcon,
-    Typography,
+  Alert,
+  Box,
+  Breadcrumbs,
+  Button,
+  Container,
+  Grid,
+  Link,
+  Pagination,
+  Paper,
+  Snackbar,
+  Stack,
+  SvgIcon,
+  Typography,
 } from "@mui/material";
 import { Layout as DashboardLayout } from "../../../../layouts/dashboard";
 import Head from "next/head";
@@ -24,26 +23,20 @@ import PlusIcon from "@untitled-ui/icons-react/build/esm/Plus";
 import CouponCard from "../../../../sections/dashboard/offers/coupon-card";
 import { useRouter } from "next/router";
 import toast from "react-hot-toast";
-import { useDeleteCoupon, useGetCoupons } from "../../../../hooks/use-coupon";
 import usePagination from "../../../../hooks/use-pagination";
 import useTranslateCoupon from "../../../../hooks/use-translate-coupon";
 import useSnackbar from "../../../../hooks/use-snackbar";
-import useTranslateNetworkMessages from "../../../../hooks/use-translate-network-msgs.js";
+import DataListRender from "../../../../components/DataListRender.jsx";
+import { QUERY_KEY } from "../../../../constants/query-keys.js";
+import { offersService } from "../../../../api/offers/index.js";
 const CouponsList = () => {
   const { translateCoupon } = useTranslateCoupon();
-  const { noFoundResources, currentLang } = useTranslateNetworkMessages();
 
   const { handleChangeLimit, handleChangePage, limit, page } = usePagination({
     limit: 12,
     page: 1,
   });
-  const {
-    coupons,
-    isSuccessCoupons,
-    isPendingCoupons,
-    couponsError,
-    isErrorCoupons,
-  } = useGetCoupons(undefined, page, limit);
+
   const {
     anchorOrigin,
     handleCloseSnackbar,
@@ -52,26 +45,7 @@ const CouponsList = () => {
     translatedToast,
     autoHideDuration,
   } = useSnackbar();
-  const { deleteCoupon, isPendingDeleteCoupon } = useDeleteCoupon();
   const router = useRouter();
-
-  const handleDeleteCoupon = useCallback(
-    async (coupon) => {
-      try {
-        await deleteCoupon(coupon.id);
-        handleOpenSnackbar({
-          message: translatedToast.deleteMsg.replace("@", `#${coupon.name}`),
-        });
-      } catch (error) {
-        handleOpenSnackbar({
-          message: translatedToast.errorMsg,
-          security: "error",
-        });
-        console.error(error);
-      }
-    },
-    [deleteCoupon, handleOpenSnackbar, translatedToast]
-  );
 
   const handleUpdateCoupon = useCallback(
     (coupon) => {
@@ -151,66 +125,63 @@ const CouponsList = () => {
             </Stack>
           </Stack>
           {/*End Heading */}
-          {/* loading indicator */}
-          {isPendingCoupons && <LinearProgress />}
-          {/* end loading indicator */}
           {/* Coupon Grid View */}
-          <Grid
-              width={"100%"}
-              component="ul"
-              padding={0}
-              container
-              spacing={"1rem"}
-              marginTop={"1rem"}
-          >
-            {isSuccessCoupons &&
-              coupons.paginatedList.map((coupon) => (
-                  <Grid
-                      key={coupon.id}
-                      sx={{ listStyleType: "none" }}
-                      item
-                      id={"coupon-item"}
-                      xs={12}
-                      sm={6}
-                      md={4}
-                      lg={3}
-                  >
-                    <CouponCard
-
-                      sx={{width:"100%"}}
-                      coupon={coupon}
-                      isDeleting={isPendingDeleteCoupon}
-                      onDelete={() => handleDeleteCoupon(coupon)}
-                      onUpdate={() => handleUpdateCoupon(coupon)}
-                    />
-                  </Grid>
-              ))}
-          </Grid>
-          <Paper sx={{ width: "100%", padding: "1rem", marginTop: "2rem" }}>
-            <Pagination
-              count={coupons?.totalPages || 0}
-              onChange={onPageChange}
-              color={"primary"}
-              sx={{ width: "100%" }}
-            />
-          </Paper>
-          {/* End Coupon Grid View */}
-          {/* Coupon Error */}
-          {!isPendingCoupons && isErrorCoupons && (
-            <Alert severity="warning">
-              <AlertTitle>
-                {noFoundResources.title.replace(
-                  "{resourceName}",
-                  currentLang === "en" ? "coupon" : "كوبونات"
-                )}
-              </AlertTitle>
-              {noFoundResources.message.replace(
-                "{resourceName}",
-                currentLang === "en" ? "coupon" : "الكوبونات"
-              )}
-            </Alert>
-          )}
-          {/* End Coupon Error */}
+          {
+            <DataListRender
+              dataExtractor={(data) => data.contentList?.[0].paginatedList}
+              enabled={true}
+              title={translateCoupon.header.headingTitle}
+              queryKey={[QUERY_KEY.COUPONS, page, limit]}
+              queryFn={() =>
+                offersService.getAllCoupons(undefined, limit, page)
+              }
+            >
+              {({ data }) => {
+                return (
+                  <Stack flexDirection={"column"}>
+                    <Grid
+                      width={"100%"}
+                      component="ul"
+                      padding={0}
+                      container
+                      spacing={"1rem"}
+                      marginTop={"1rem"}
+                    >
+                      {data.contentList?.[0].paginatedList.map((coupon) => (
+                        <Grid
+                          key={coupon.id}
+                          sx={{ listStyleType: "none" }}
+                          item
+                          id={"coupon-item"}
+                          xs={12}
+                          sm={6}
+                          md={4}
+                          lg={3}
+                        >
+                          <CouponCard
+                            sx={{ width: "100%" }}
+                            coupon={coupon}
+                            onUpdate={() => handleUpdateCoupon(coupon)}
+                          />
+                        </Grid>
+                      ))}
+                    </Grid>
+                    <Paper
+                      sx={{ width: "100%", padding: "1rem", marginTop: "2rem" }}
+                    >
+                      <Pagination
+                        count={data.contentList?.[0].totalPages || 1}
+                        onChange={onPageChange}
+                        color={"primary"}
+                        page={data.contentList?.[0].currentPage || page}
+                        sx={{ width: "100%" }}
+                      />
+                    </Paper>
+                  </Stack>
+                );
+              }}
+            </DataListRender>
+          }
         </Container>
       </Box>
       <Snackbar

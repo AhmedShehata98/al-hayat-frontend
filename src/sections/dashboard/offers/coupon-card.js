@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import Card from "@mui/material/Card";
 import CardActions from "@mui/material/CardActions";
 import CardContent from "@mui/material/CardContent";
@@ -23,16 +23,20 @@ import useTranslateCoupon from "../../../hooks/use-translate-coupon";
 import useDateFormat from "../../../hooks/use-date.format";
 import useNumberFormat from "../../../hooks/use-number-format";
 import { COUPON_TYPES } from "../../../utils/coupon-helpers";
+import { useDeleteCoupon } from "../../../hooks/use-coupon";
+import useSnackbar from "../../../hooks/use-snackbar";
 
-const CouponCard = ({ coupon, onDelete, onUpdate, isDeleting, ...props }) => {
+const CouponCard = ({ coupon, onUpdate, ...props }) => {
   const {
     translateCoupon: { card: cardTranslation },
   } = useTranslateCoupon();
   const { formatCurrency } = useNumberFormat();
   const { formatDate } = useDateFormat();
   const [expandText, setExpandText] = useState(false);
+  const { deleteCoupon, isPendingDeleteCoupon } = useDeleteCoupon();
 
   const {
+    id: couponId,
     name,
     discription: description,
     percentage,
@@ -45,6 +49,15 @@ const CouponCard = ({ coupon, onDelete, onUpdate, isDeleting, ...props }) => {
     maxAmount,
     couponType,
   } = coupon;
+
+  const {
+    anchorOrigin,
+    handleCloseSnackbar,
+    handleOpenSnackbar,
+    openSnackbar,
+    translatedToast,
+    autoHideDuration,
+  } = useSnackbar();
 
   const couponTypeMap =
     cardTranslation.couponsCard.couponType[
@@ -60,6 +73,22 @@ const CouponCard = ({ coupon, onDelete, onUpdate, isDeleting, ...props }) => {
       toast.error("error occurred when copy coupon");
     }
   };
+
+  const handleDeleteCoupon = useCallback(async () => {
+    try {
+      await deleteCoupon(coupon.id);
+      handleOpenSnackbar({
+        message: translatedToast.deleteMsg.replace("@", `#${coupon.name}`),
+      });
+    } catch (error) {
+      handleOpenSnackbar({
+        message: translatedToast.errorMsg,
+        security: "error",
+      });
+      console.error(error);
+    }
+  }, [deleteCoupon, handleOpenSnackbar, translatedToast, coupon]);
+
   return (
     <Card {...props}>
       <CardContent
@@ -226,8 +255,8 @@ const CouponCard = ({ coupon, onDelete, onUpdate, isDeleting, ...props }) => {
           size="small"
           color="error"
           startIcon={<DeleteIcon />}
-          onClick={onDelete}
-          loading={isDeleting}
+          onClick={handleDeleteCoupon}
+          loading={isPendingDeleteCoupon}
         >
           {cardTranslation.couponsCard.actions.delete}
         </LoadingButton>
