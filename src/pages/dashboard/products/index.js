@@ -27,7 +27,11 @@ import usePagination from "../../../hooks/use-pagination";
 import useTranslateProducts from "../../../hooks/use-translate-products";
 import { useDebounce } from "use-debounce";
 import useTranslateNetworkMessages from "../../../hooks/use-translate-network-msgs.js";
-
+import DataListRender from "../../../components/DataListRender.jsx";
+import { QUERY_KEY } from "../../../constants/query-keys.js";
+import { useRecoilValue } from "recoil";
+import { authAtom } from "../../../atoms/auth-atom.js";
+import { productsService } from "../../../api/products/index.js";
 const useSearch = () => {
   const [search, setSearch] = useState({
     filters: {
@@ -52,6 +56,7 @@ const ProductList = () => {
     translateProducts: { headingTitle, ctaBtn, breadcrumb },
   } = useTranslateProducts();
   const { noFoundResources, currentLang } = useTranslateNetworkMessages();
+  const authState = useRecoilValue(authAtom);
 
   const { limit, page, handleChangePage, handleChangeLimit } = usePagination({
     limit: 10,
@@ -64,22 +69,6 @@ const ProductList = () => {
     sortDir: "asc",
   });
   const [queryDebounced] = useDebounce(queryString, 400);
-
-  const {
-    products,
-    isSuccessProducts,
-    isLoadingProducts,
-    productsCount,
-    isErrorProducts,
-    errorProducts,
-  } = useGetAllProducts({
-    search: queryDebounced,
-    sortDir: sortQuery.sortDir,
-    sortBy: sortQuery.sortBy,
-    page,
-    limit,
-  });
-  usePageView();
 
   const handleFiltersChange = useCallback(
     (filters) => {
@@ -167,38 +156,49 @@ const ProductList = () => {
                 </Button>
               </Stack>
             </Stack>
-            {isLoadingProducts && <LinearProgress />}
-            <Card>
-              <ProductListSearch
-                onFiltersChange={handleFiltersChange}
-                onQueryChange={handleQueryChange}
-                onSortChange={handleSortChange}
-              />
-
-              <ProductListTable
-                onPageChange={handlePageChange}
-                onRowsPerPageChange={handleRowsPerPageChange}
-                page={page}
-                products={products?.paginatedList}
-                productsCount={products?.totalCount || 0}
-                isSuccessProducts={isSuccessProducts}
-                rowsPerPage={limit}
-              />
-            </Card>
-            {isErrorProducts && (
-              <Alert severity="error">
-                <AlertTitle>
-                  {noFoundResources.title.replace(
-                    "{resourceName}",
-                    currentLang === "ar" ? "منتجات" : "products"
-                  )}
-                </AlertTitle>
-                {noFoundResources.message.replace(
-                  "{resourceName}",
-                  currentLang === "ar" ? "منتجات" : "products"
-                )}
-              </Alert>
-            )}
+            <ProductListSearch
+              onFiltersChange={handleFiltersChange}
+              onQueryChange={handleQueryChange}
+              onSortChange={handleSortChange}
+            />
+            <DataListRender
+              title={headingTitle}
+              dataExtractor={(data) => data.contentList?.[0].paginatedList}
+              queryKey={[
+                QUERY_KEY.products,
+                queryDebounced,
+                sortQuery.sortDir,
+                sortQuery.sortBy,
+                page,
+                limit,
+                authState.token,
+              ]}
+              enabled={true}
+              queryFn={() =>
+                productsService.getAllProducts({
+                  search: queryDebounced,
+                  sortDir: sortQuery.sortDir,
+                  sortBy: sortQuery.sortBy,
+                  page,
+                  limit,
+                  token: authState.token,
+                })
+              }
+            >
+              {({ data }) => (
+                <Card>
+                  <ProductListTable
+                    onPageChange={handlePageChange}
+                    onRowsPerPageChange={handleRowsPerPageChange}
+                    page={data.contentList?.[0]?.currentPage || page}
+                    products={data.contentList?.[0]?.paginatedList}
+                    productsCount={data.contentList?.[0]?.totalPages || 0}
+                    isSuccessProducts={true}
+                    rowsPerPage={limit}
+                  />
+                </Card>
+              )}
+            </DataListRender>
           </Stack>
         </Container>
       </Box>

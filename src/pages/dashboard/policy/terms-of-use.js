@@ -9,6 +9,8 @@ import {
   Typography,
   Button,
   Divider,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import { BreadcrumbsSeparator } from "../../../components/breadcrumbs-separator.js";
 import { paths } from "../../../paths.js";
@@ -22,6 +24,7 @@ import { useRecoilValue } from "recoil";
 import { authAtom } from "../../../atoms/auth-atom.js";
 import toast from "react-hot-toast";
 import dynamic from "next/dynamic";
+import useSnackbar from "../../../hooks/use-snackbar.js";
 const TinyMceEditor = dynamic(
   () => import("../../../components/tinymce-wrapper/TinyMceEditor.js"),
   { ssr: false }
@@ -40,7 +43,14 @@ const TermsOfUse = () => {
     select: (data) => data?.[0],
     queryFn: () => termsAndConditionsService.termsAndPolicy({ token }),
   });
-
+  const {
+    anchorOrigin,
+    autoHideDuration,
+    handleCloseSnackbar,
+    handleOpenSnackbar,
+    openSnackbar,
+    translatedToast,
+  } = useSnackbar();
   const { mutateAsync: addTermsAndPolicyAsync } = useMutation({
     mutationFn: (data) =>
       termsAndConditionsService.addTermsAndPolicy({ token, data }),
@@ -65,13 +75,24 @@ const TermsOfUse = () => {
     try {
       await addTermsAndPolicyAsync(newPolicy);
       setEditMode(false);
+      handleOpenSnackbar({
+        message: translatedToast.updateMsg.replace(
+          "@",
+          t(tokens.policyPrivacy.headingTitle)
+        ),
+        severity: "success",
+      });
     } catch (error) {
       console.error(error);
-      toast.error(t(tokens.networkMessages.somethingWentWrong.message));
+      handleOpenSnackbar({
+        message: t(tokens.networkMessages.somethingWentWrong.message),
+        severity: "success",
+      });
     }
   }, [
     addTermsAndPolicyAsync,
     t,
+    handleOpenSnackbar,
     termsOfPrivacyAndUseRef.current,
     termsOfBuyAndSellRef.current,
     policy,
@@ -179,6 +200,14 @@ const TermsOfUse = () => {
           </Stack>
         </Container>
       </Box>
+      <Snackbar
+        open={openSnackbar.open}
+        autoHideDuration={autoHideDuration}
+        anchorOrigin={anchorOrigin}
+        onClose={handleCloseSnackbar}
+      >
+        <Alert severity={openSnackbar.severity}>{openSnackbar.message}</Alert>
+      </Snackbar>
     </>
   );
 };

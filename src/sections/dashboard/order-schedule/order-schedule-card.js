@@ -27,16 +27,25 @@ import { scheduledOrderAtom } from "../../../atoms/schedule-orders-atom";
 import { useRecoilState } from "recoil";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import { useGetAllDriversUsers } from "../../../hooks/use-user";
+import usePagination from "../../../hooks/use-pagination";
 
-const OrderScheduleCard = ({
-  order,
-  drivers,
-  isSuccessGettingDriversUsers,
-  onPageChange,
-}) => {
+const OrderScheduleCard = ({ order }) => {
   const [{ assignmentOrders }, setAssignmentOrders] =
     useRecoilState(scheduledOrderAtom);
   const [employeeValue, setEmployeeValue] = useState(null);
+  const {
+    page: driversPage,
+    limit: driversLimit,
+    handleChangeLimit: handleChangeDriversLimit,
+    handleChangePage: changeDriversPage,
+  } = usePagination({ limit: 10, page: 1 });
+
+  const { drivers, isSuccessGettingDriversUsers } = useGetAllDriversUsers({
+    limit: driversLimit,
+    page: driversPage,
+    enabled: order.employeeId === null,
+  });
 
   const { formatDate } = useFormatDate();
   const { formatCurrency } = useFormatNumber();
@@ -106,7 +115,7 @@ const OrderScheduleCard = ({
               disabled={order.employeeId}
             />
           )}
-          {isSuccessGettingDriversUsers && (
+          {!order.employeeId && isSuccessGettingDriversUsers && (
             <TextField
               label={translatedCard.driverSelect}
               name="employeeId"

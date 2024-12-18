@@ -31,6 +31,7 @@ import { useTranslation } from "react-i18next";
 import { Snackbar } from "@mui/material";
 import useSnackbar from "../../../hooks/use-snackbar";
 import { tokens } from "../../../locales/tokens";
+import { t } from "i18next";
 
 const useSelectionModel = (customers) => {
   const customerIds = useMemo(() => {
@@ -116,13 +117,13 @@ export const CustomerListTable = (props) => {
             "@",
             `# ${customerId.slice(0, 8)}...`
           ),
-          security: "success",
+          severity: "success",
         });
       }
     } catch (error) {
       console.error("Error deleting user", error);
       handleOpenSnackbar({
-        message: tokens.networkMessages.somethingWentWrong.message,
+        message: t(tokens.networkMessages.somethingWentWrong.message),
         severity: "error",
       });
     }

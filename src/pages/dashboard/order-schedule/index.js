@@ -3,6 +3,7 @@ import {
   AlertTitle,
   Box,
   Breadcrumbs,
+  Card,
   Container,
   LinearProgress,
   Link,
@@ -32,12 +33,16 @@ import { useRecoilState } from "recoil";
 import { scheduledOrderAtom } from "../../../atoms/schedule-orders-atom";
 import useSnackbar from "../../../hooks/use-snackbar";
 import useTranslateNetworkMessages from "../../../hooks/use-translate-network-msgs.js";
+import { useQueryClient } from "@tanstack/react-query";
+import { QUERY_KEY } from "../../../constants/query-keys.js";
+import { t } from "i18next";
+import { tokens } from "../../../locales/tokens.js";
 
 const ScheduledOrderPage = () => {
   const [{ assignmentOrders }, setAssignmentOrders] =
     useRecoilState(scheduledOrderAtom);
   const { translatedScheduledOrders } = useTranslateOrderSchedule();
-  const { noFoundResources, currentLang } = useTranslateNetworkMessages();
+  const queryClient = useQueryClient();
   const [assignOrderMethod, setAssignOrderMethod] = useState("MANUAL"); // <"MANUAL" | "AUTO">
   const {
     anchorOrigin,
@@ -47,57 +52,58 @@ const ScheduledOrderPage = () => {
     translatedToast,
     autoHideDuration,
   } = useSnackbar();
-  const { page, limit, handleChangeLimit, handleChangePage } = usePagination({
-    limit: 10,
+  const {
+    page: nonAssignedPage,
+    limit: nonAssignedLimit,
+    handleChangeLimit: handleChangeNonAssignedLimit,
+    handleChangePage: handleChangeNonAssignedPage,
+  } = usePagination({
+    limit: 4,
     page: 1,
   });
 
   const {
-    page: driversPage,
-    limit: driversLimit,
-    handleChangeLimit: handleChangeDriversLimit,
-    handleChangePage: changeDriversPage,
-  } = usePagination({ limit: 10, page: 1 });
+    page: assignedPage,
+    limit: assignedLimit,
+    handleChangeLimit: handleChangeAssignedLimit,
+    handleChangePage: handleChangeAssignedPage,
+  } = usePagination({
+    limit: 10,
+    page: 1,
+  });
 
   const { assignOrderDriversAsync, isPendingAssign } = useAssignDrivers();
 
   //TODO: handle how to paginate drivers list
-  const { orders, isErrorOrders, isPendingOrders, isSuccessOrders, errorMsg } =
-    useGetAllOrders({
-      limit,
-      page,
-      search: undefined,
-      sortDirection: undefined,
-      sortOrder: undefined,
-      status: ORDER_STATUS.get(0),
-    });
-
-  const { drivers, isSuccessGettingDriversUsers } = useGetAllDriversUsers({
-    limit: driversLimit,
-    page: driversPage,
+  const {
+    orders: assignedOrdersList,
+    isErrorOrders: isErrorAssignedOrders,
+    isPendingOrders: isPendingAssignedOrders,
+    isSuccessOrders: isSuccessAssignedOrders,
+    errorMsg: assignedOrdersError,
+  } = useGetAllOrders({
+    limit: assignedLimit,
+    page: assignedPage,
+    search: undefined,
+    sortDirection: undefined,
+    sortOrder: undefined,
+    status: ORDER_STATUS.get(4),
   });
 
-  const assignedOrdersList = useMemo(
-    () =>
-      isSuccessOrders
-        ? orders.paginatedList.filter((order) => order.employeeId !== null)
-        : [],
-    [orders, isSuccessOrders]
-  );
-  const nonAssignedOrdersList = useMemo(
-    () =>
-      isSuccessOrders
-        ? orders.paginatedList.filter((order) => order.employeeId === null)
-        : [],
-    [orders, isSuccessOrders]
-  );
-
-  const handleChangeDriversPage = useCallback(
-    (page) => {
-      changeDriversPage(page);
-    },
-    [changeDriversPage]
-  );
+  const {
+    orders: nonAssignedOrdersList,
+    isErrorOrders: isErrorNonAssignedOrders,
+    isPendingOrders: isPendingNonAssignedOrders,
+    isSuccessOrders: isSuccessNonAssignedOrders,
+    errorMsg: nonAssignedOrdersError,
+  } = useGetAllOrders({
+    limit: nonAssignedLimit,
+    page: nonAssignedPage,
+    search: undefined,
+    sortDirection: undefined,
+    sortOrder: undefined,
+    status: ORDER_STATUS.get(0),
+  });
 
   const handleSetAssignmentOrder = useCallback(
     (order) => {
@@ -121,9 +127,20 @@ const ScheduledOrderPage = () => {
 
   const handleAutoAssignOrders = useCallback(async () => {
     try {
+      const queryData = queryClient.getQueriesData({
+        queryKey: [QUERY_KEY.DRIVERS],
+      });
+      const drivers = queryData[0][1]?.contentList?.[0]?.paginatedList;
+      console.log("drivers: ", drivers);
+      console.log("nonAssignedOrdersList: ", nonAssignedOrdersList);
+
+      if (!drivers || drivers.length === 0) {
+        console.error("No drivers found");
+        return;
+      }
       const autoAssignOrdersList = autoAssignOrders(
-        nonAssignedOrdersList,
-        drivers.paginatedList
+        nonAssignedOrdersList?.paginatedList,
+        drivers
       );
       setAssignmentOrders({ assignmentOrders: [] });
       setAssignOrderMethod("AUTO");
@@ -144,7 +161,6 @@ const ScheduledOrderPage = () => {
     handleSetAssignmentOrder,
     assignOrderDriversAsync,
     nonAssignedOrdersList,
-    drivers,
     translatedToast,
     handleOpenSnackbar,
     setAssignmentOrders,
@@ -242,33 +258,61 @@ const ScheduledOrderPage = () => {
             </Stack>
           </Stack>
           {/*End Heading */}
-          {isPendingOrders && <LinearProgress />}
-          {!isErrorOrders && (
-            <>
+          {(isPendingNonAssignedOrders || isPendingAssignedOrders) && (
+            <LinearProgress />
+          )}
+
+          {isSuccessNonAssignedOrders && (
+            <Stack spacing={3}>
               <NonAssignedOrders
-                orders={nonAssignedOrdersList}
-                isSuccessOrders={isSuccessOrders}
-                drivers={drivers}
-                isSuccessGettingDriversUsers={isSuccessGettingDriversUsers}
-                onPageChange={handleChangeDriversPage}
-              />
-              <AssignedOrders
-                orders={assignedOrdersList}
-                isSuccessOrders={isSuccessOrders}
+                orders={nonAssignedOrdersList.paginatedList}
+                isSuccessOrders={isSuccessNonAssignedOrders}
               />
               <Pagination
-                count={orders?.totalPages}
+                count={nonAssignedOrdersList.totalPages}
                 variant="outlined"
                 sx={{
                   mt: 10,
                 }}
                 color="secondary"
-                page={page}
-                onChange={(_evt, value) => handleChangePage(value)}
+                page={nonAssignedOrdersList.currentPage || nonAssignedPage}
+                onChange={(_evt, value) => handleChangeNonAssignedPage(value)}
               />
-            </>
+            </Stack>
           )}
-          {isErrorOrders && (
+          {(!nonAssignedOrdersList || isErrorNonAssignedOrders) && (
+            <Card sx={{ py: 15 }}>
+              <Alert severity="info" sx={{ mx: "auto", width: "fit-content" }}>
+                {t(tokens.orderSchedule.nonAssignedOrdersHeading.notfoundMsg)}
+              </Alert>
+            </Card>
+          )}
+          {isSuccessAssignedOrders && (
+            <Stack spacing={3}>
+              <AssignedOrders
+                orders={assignedOrdersList?.paginatedList}
+                isSuccessOrders={isSuccessAssignedOrders}
+              />
+              <Pagination
+                count={assignedOrdersList?.totalPages}
+                variant="outlined"
+                sx={{
+                  mt: 10,
+                }}
+                color="secondary"
+                page={assignedOrdersList?.currentPage || assignedPage}
+                onChange={(_evt, value) => handleChangeAssignedPage(value)}
+              />
+            </Stack>
+          )}
+          {(!assignedOrdersList || isErrorAssignedOrders) && (
+            <Card sx={{ py: 15 }}>
+              <Alert severity="info" sx={{ mx: "auto", width: "fit-content" }}>
+                {t(tokens.orderSchedule.assignedOrdersHeading.notfoundMsg)}
+              </Alert>
+            </Card>
+          )}
+          {/* {isErrorOrders && (
             <Stack paddingY={6}>
               <Alert severity="error">
                 <AlertTitle>
@@ -283,7 +327,7 @@ const ScheduledOrderPage = () => {
                 )}
               </Alert>
             </Stack>
-          )}
+          )} */}
         </Container>
       </Box>
       <Snackbar

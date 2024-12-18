@@ -45,13 +45,13 @@ export const OrderSummary = (props) => {
           "@",
           `#${order.id}`
         ),
-        security: "success",
+        severity: "success",
       });
       router.push(paths.dashboard.orders.index);
     } catch (error) {
       handleOpenSnackbar({
         message: translatedToast.orderCancelError,
-        security: "error",
+        severity: "error",
       });
       console.error(error);
     }

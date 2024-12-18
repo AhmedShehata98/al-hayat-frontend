@@ -21,7 +21,7 @@ export function getOrderStatusColor(orderStatus) {
     case 3:
       return "#e57373";
     case 4:
-      return "#f6f6f6";
+      return "#c4c4c4";
 
     default:
       return "#f6f6f6";

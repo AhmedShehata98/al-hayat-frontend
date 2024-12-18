@@ -79,11 +79,12 @@ const CouponCard = ({ coupon, onUpdate, ...props }) => {
       await deleteCoupon(coupon.id);
       handleOpenSnackbar({
         message: translatedToast.deleteMsg.replace("@", `#${coupon.name}`),
+        severity: "success",
       });
     } catch (error) {
       handleOpenSnackbar({
         message: translatedToast.errorMsg,
-        security: "error",
+        severity: "error",
       });
       console.error(error);
     }

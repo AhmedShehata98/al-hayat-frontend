@@ -1,10 +1,12 @@
 import { Layout as DashboardLayout } from "../../../layouts/dashboard";
 import Head from "next/head.d.ts";
 import {
+  Alert,
   Box,
   Breadcrumbs,
   Container,
   Link,
+  Snackbar,
   Stack,
   Typography,
 } from "@mui/material";
@@ -19,6 +21,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { aboutUsService } from "../../../api/about-us/index";
 import { useRecoilValue } from "recoil";
 import { authAtom } from "../../../atoms/auth-atom.js";
+import useSnackbar from "../../../hooks/use-snackbar.js";
 
 const AboutUsPage = () => {
   const { t } = useTranslation();
@@ -32,7 +35,14 @@ const AboutUsPage = () => {
   const { mutateAsync: addAboutUsAsync, isPending: isAdding } = useMutation({
     mutationFn: (data) => aboutUsService.addAboutUs({ data, token }),
   });
-
+  const {
+    anchorOrigin,
+    autoHideDuration,
+    handleCloseSnackbar,
+    handleOpenSnackbar,
+    openSnackbar,
+    translatedToast,
+  } = useSnackbar();
   const handleEdit = () => {
     setEditMode(true);
   };
@@ -42,28 +52,57 @@ const AboutUsPage = () => {
 
   const handleCreateAboutUrls = useCallback(
     async (data) => {
-      const addedData = await addAboutUsAsync(data);
+      try {
+        await addAboutUsAsync(data);
+        handleOpenSnackbar({
+          message: translatedToast.createMsg.replace(
+            "@",
+            t(tokens.aboutUs.headingTitle)
+          ),
+          severity: "success",
+        });
+      } catch (error) {
+        handleOpenSnackbar({
+          message: t(tokens.networkMessages.somethingWentWrong.message),
+          severity: "success",
+        });
+        console.error("Error adding about us data: ", error);
+      }
     },
-    [addAboutUsAsync]
+    [addAboutUsAsync, handleOpenSnackbar]
   );
 
   const handleUpdateAboutUrls = useCallback(
     async (data) => {
-      const newData = {
-        aboutUrl: aboutUsData.aboutUrl,
-        whoAreWe: aboutUsData.whoAreWe,
-        data,
-        socialMedia: { ...aboutUsData.socialMedia, ...data.socialMedia },
-      };
+      try {
+        const newData = {
+          aboutUrl: aboutUsData.aboutUrl,
+          whoAreWe: aboutUsData.whoAreWe,
+          data,
+          socialMedia: { ...aboutUsData.socialMedia, ...data.socialMedia },
+        };
 
-      const addedData = await addAboutUsAsync(newData);
+        await addAboutUsAsync(newData);
+        handleOpenSnackbar({
+          message: translatedToast.updateMsg.replace(
+            "@",
+            t(tokens.aboutUs.headingTitle)
+          ),
+          severity: "success",
+        });
+      } catch (error) {
+        handleOpenSnackbar({
+          message: t(tokens.networkMessages.somethingWentWrong.message),
+          severity: "success",
+        });
+        console.error("Error adding update us data: ", error);
+      }
     },
-    [aboutUsData, addAboutUsAsync]
+    [aboutUsData, addAboutUsAsync, handleOpenSnackbar]
   );
 
   const handleSubmit = useCallback(
     async (data) => {
-      console.log(data);
       try {
         const isExistingData =
           aboutUsData.whoAreWe &&
@@ -75,19 +114,13 @@ const AboutUsPage = () => {
         } else {
           await handleCreateAboutUrls(data);
         }
-        const addedData = await addAboutUsAsync(data);
+
         queryClient.invalidateQueries(["about-us"]);
       } catch (error) {
         console.error(data);
       }
     },
-    [
-      addAboutUsAsync,
-      handleUpdateAboutUrls,
-      handleCreateAboutUrls,
-      aboutUsData,
-      queryClient,
-    ]
+    [handleUpdateAboutUrls, handleCreateAboutUrls, aboutUsData, queryClient]
   );
 
   return (
@@ -149,6 +182,14 @@ const AboutUsPage = () => {
           </Stack>
         </Container>
       </Box>
+      <Snackbar
+        open={openSnackbar.open}
+        autoHideDuration={autoHideDuration}
+        anchorOrigin={anchorOrigin}
+        onClose={handleCloseSnackbar}
+      >
+        <Alert severity={openSnackbar.severity}>{openSnackbar.message}</Alert>
+      </Snackbar>
     </>
   );
 };

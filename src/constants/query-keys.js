@@ -5,4 +5,6 @@ export const QUERY_KEY = {
   USER_DETAILS: "user",
   COUPONS: "coupons",
   DRIVERS: "drivers",
+  ORDERS: "orders",
+  products: "products",
 };

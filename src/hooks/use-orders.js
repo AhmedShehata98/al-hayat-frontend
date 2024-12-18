@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ordersService } from "../api/orders";
 import { useRecoilValue } from "recoil";
 import { authAtom } from "../atoms/auth-atom";
+import { QUERY_KEY } from "../constants/query-keys";
 export const useGetAllOrders = ({
   search,
   sortOrder,
@@ -20,7 +21,7 @@ export const useGetAllOrders = ({
     error: errorMsg,
   } = useQuery({
     queryKey: [
-      "orders",
+      QUERY_KEY.ORDERS,
       search,
       searchByID,
       sortOrder,
@@ -62,7 +63,7 @@ export const useGetOrderById = (orderId) => {
     isError: isErrorGetOrder,
     isPending: isPendingGetOrder,
   } = useQuery({
-    queryKey: ["order", orderId],
+    queryKey: [QUERY_KEY.ORDERS, orderId],
     queryFn: () => ordersService.getOrderById(orderId, authState.token),
     enable: Boolean(orderId),
   });
@@ -87,8 +88,8 @@ export const useAssignDrivers = () => {
     mutationFn: (drivers) =>
       ordersService.assignOrderDrivers(drivers, authState.token),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["drivers"] });
-      queryClient.invalidateQueries({ queryKey: ["orders"] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY.DRIVERS] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY.ORDERS] });
     },
   });
 
@@ -113,7 +114,7 @@ export const useCancelOrder = () => {
     mutationFn: (orderId) =>
       ordersService.cancelOrder(orderId, authState.token),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["orders"] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY.ORDERS] });
     },
   });
 

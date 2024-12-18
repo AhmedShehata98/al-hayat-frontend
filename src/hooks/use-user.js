@@ -219,7 +219,14 @@ const useUpdateMe = () => {
   };
 };
 
-const useGetAllDriversUsers = ({ limit, page, orderBy, orderDir, search }) => {
+const useGetAllDriversUsers = ({
+  limit,
+  page,
+  orderBy,
+  orderDir,
+  search,
+  enabled = true,
+}) => {
   const { token } = useRecoilValue(authAtom);
 
   const {
@@ -235,6 +242,7 @@ const useGetAllDriversUsers = ({ limit, page, orderBy, orderDir, search }) => {
         { limit, page, orderBy, orderDir, search },
         token
       ),
+    enabled: enabled,
   });
 
   return {

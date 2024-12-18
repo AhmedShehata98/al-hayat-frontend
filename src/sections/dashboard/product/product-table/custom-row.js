@@ -33,6 +33,8 @@ import {
   parseCategoryQuestions,
 } from "../../../../utils/parse-category-questions";
 import BuildIcon from "@mui/icons-material/Build";
+import { tokens } from "../../../../locales/tokens";
+import { t } from "i18next";
 
 export default function CustomRow(props) {
   const {
@@ -74,13 +76,16 @@ export default function CustomRow(props) {
       try {
         await deleteProductAsync(productId);
         handleOpenSnackbar({
-          message: translatedToast.deleteMsg.replace("@", `# ${productId}`),
-          security: "success",
+          message: translatedToast.deleteMsg.replace(
+            "@",
+            `# ${productId.slice(0, 8)}...`
+          ),
+          severity: "success",
         });
       } catch (error) {
         handleOpenSnackbar({
-          message: translatedToast.errorMsg,
-          security: "error",
+          message: t(tokens.networkMessages.somethingWentWrong.message),
+          severity: "error",
         });
         console.error(error);
       }

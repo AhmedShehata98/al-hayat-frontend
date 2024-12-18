@@ -109,6 +109,13 @@ const CategoryCreateForm = () => {
         helpers.setSubmitting(false);
         helpers.setStatus({ success: true });
         handleClearQuestions();
+        handleOpenSnackbar({
+          message: translatedToast.createMsg.replace(
+            "@",
+            `# ${categoryData.get("name")}`
+          ),
+          severity: "success",
+        });
       } catch (error) {
         handleOpenSnackbar({
           message: translatedToast.errorMsg,
