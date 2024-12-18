@@ -7,8 +7,12 @@ import {
   Card,
   CardContent,
   Divider,
+  FormControl,
+  InputLabel,
+  LinearProgress,
   MenuItem,
   Paper,
+  Select,
   Stack,
   TextField,
   Typography,
@@ -29,23 +33,31 @@ import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useGetAllDriversUsers } from "../../../hooks/use-user";
 import usePagination from "../../../hooks/use-pagination";
+import { useInView } from "react-intersection-observer";
+import { t } from "i18next";
+import { tokens } from "../../../locales/tokens";
 
 const OrderScheduleCard = ({ order }) => {
   const [{ assignmentOrders }, setAssignmentOrders] =
     useRecoilState(scheduledOrderAtom);
+  const { ref, inView, entry } = useInView({
+    /* Optional options */
+    threshold: 0,
+  });
   const [employeeValue, setEmployeeValue] = useState(null);
   const {
     page: driversPage,
     limit: driversLimit,
     handleChangeLimit: handleChangeDriversLimit,
     handleChangePage: changeDriversPage,
-  } = usePagination({ limit: 10, page: 1 });
+  } = usePagination({ limit: 6, page: 1 });
 
-  const { drivers, isSuccessGettingDriversUsers } = useGetAllDriversUsers({
-    limit: driversLimit,
-    page: driversPage,
-    enabled: order.employeeId === null,
-  });
+  const { drivers, isSuccessGettingDriversUsers, isGettingDriversUsers } =
+    useGetAllDriversUsers({
+      limit: driversLimit,
+      page: driversPage,
+      enabled: order.employeeId === null,
+    });
 
   const { formatDate } = useFormatDate();
   const { formatCurrency } = useFormatNumber();
@@ -92,6 +104,14 @@ const OrderScheduleCard = ({ order }) => {
     }
   }, [employee]);
 
+  useEffect(() => {
+    if (inView) {
+      if (drivers && drivers.currentPage !== drivers.totalPages) {
+        handleChangeDriversLimit(driversLimit + 4);
+      }
+    }
+  }, [inView, ref, drivers]);
+
   return (
     <Card>
       <CardContent
@@ -115,62 +135,51 @@ const OrderScheduleCard = ({ order }) => {
               disabled={order.employeeId}
             />
           )}
-          {!order.employeeId && isSuccessGettingDriversUsers && (
-            <TextField
-              label={translatedCard.driverSelect}
-              name="employeeId"
-              value={employeeValue}
+          <FormControl
+            fullWidth
+            sx={{ display: order.employeeId ? "none" : "flex" }}
+          >
+            <InputLabel id="driver-select-label">
+              {translatedCard.driverSelect?.split(" ")[1]}
+            </InputLabel>
+            <Select
+              labelId="driver-select-label"
+              id="driver"
+              value={employeeValue ? employeeValue : "default"}
               onChange={handleChange}
-              select
-              defaultChecked={employeeValue}
-              fullWidth
-              size={"small"}
+              label="driver"
+              MenuProps={{
+                PaperProps: {
+                  sx: {
+                    maxHeight: 220,
+                  },
+                },
+              }}
             >
-              {drivers.paginatedList.map(function (driver) {
+              <MenuItem value={"default"}>
+                {t(tokens.orderSchedule.card.driverSelect)}
+              </MenuItem>
+              {drivers?.paginatedList?.map(function (driver, idx) {
                 return (
                   <MenuItem
                     key={driver.id}
                     value={driver.id}
+                    ref={idx === drivers.paginatedList.length - 1 ? ref : null}
                   >{`${driver.firstName} ${driver.lastName}`}</MenuItem>
                 );
               })}
-              {drivers && (
-                <Box
-                  sx={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    gap: "1rem",
-                    paddingBlock: "1rem",
-                    paddingInline: "1rem",
-                  }}
-                >
-                  <Button
-                    onClick={() => onPageChange((p) => p + 1)}
-                    size={"small"}
-                    sx={{ marginX: "auto" }}
-                    variant="contained"
-                    disabled={drivers.currentPage >= drivers.totalPages}
-                  >
-                    <ArrowForwardIcon fontSize="17px" />
-                  </Button>
-
-                  <Typography variant="caption">
-                    Page {drivers.currentPage} of {drivers.totalPages}
-                  </Typography>
-                  <Button
-                    onClick={() => onPageChange((p) => p - 1)}
-                    size={"small"}
-                    sx={{ marginX: "auto" }}
-                    variant="contained"
-                    disabled={drivers.currentPage == 1}
-                  >
-                    <ArrowBackIcon fontSize="17px" />
-                  </Button>
-                </Box>
-              )}
-            </TextField>
-          )}
+              <Box
+                sx={{
+                  display: isGettingDriversUsers ? "flex" : "none",
+                  pt: 2,
+                  pb: 1,
+                  px: 2,
+                }}
+              >
+                <LinearProgress />
+              </Box>
+            </Select>
+          </FormControl>
           <Paper
             sx={{
               width: "15px",
@@ -227,21 +236,7 @@ const OrderScheduleCard = ({ order }) => {
               {orderDate}
             </Typography>
           </Box>
-          {/* <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "flex-start",
-              gap: "1.5rem",
-            }}
-          >
-            <Typography variant="overline">
-              {translatedCard.location} :
-            </Typography>
-            <Typography variant="caption" color={"#b7b7b7"}>
-              {order?.customer?.currentLocation || "NA"}
-            </Typography>
-          </Box> */}
+
           <Box
             sx={{
               display: "flex",

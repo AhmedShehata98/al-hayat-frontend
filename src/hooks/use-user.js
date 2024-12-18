@@ -236,13 +236,14 @@ const useGetAllDriversUsers = ({
     isError: isErrorGettingDriversUsers,
     error: errorGettingDriversUsersMsg,
   } = useQuery({
-    queryKey: [QUERY_KEY.DRIVERS],
+    queryKey: [QUERY_KEY.DRIVERS, search, orderBy, orderDir, limit, page],
     queryFn: () =>
       usersServices.getDriversUsers(
         { limit, page, orderBy, orderDir, search },
         token
       ),
     enabled: enabled,
+    placeholderData: (prev) => prev,
   });
 
   return {
