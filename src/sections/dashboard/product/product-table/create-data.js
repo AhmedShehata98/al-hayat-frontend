@@ -10,6 +10,7 @@ export function createData({
   categoryOptions = {},
   discountOptions = {},
   actionButtons,
+  isActive,
 }) {
   return {
     id,
@@ -23,5 +24,6 @@ export function createData({
     categoryOptions,
     discountOptions,
     actionButtons,
+    isActive,
   };
 }

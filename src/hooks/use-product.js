@@ -127,6 +127,25 @@ const useDeleteProduct = () => {
 
   return { deleteProductAsync, isLoading, isError, error, isSuccess };
 };
+const useToggleProductActive = () => {
+  const queryClient = useQueryClient();
+  const { token } = useRecoilValue(authAtom);
+
+  const {
+    mutateAsync: toggleProductActiveAsync,
+    isLoading,
+    isError,
+    isSuccess,
+    error,
+  } = useMutation({
+    mutationFn: (fd) => productsService.toggleActive({ fd, token }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["products"] });
+    },
+  });
+
+  return { toggleProductActiveAsync, isLoading, isError, error, isSuccess };
+};
 
 export {
   useGetAllProducts,
@@ -134,4 +153,5 @@ export {
   useAddProduct,
   useUpdateProduct,
   useDeleteProduct,
+  useToggleProductActive,
 };

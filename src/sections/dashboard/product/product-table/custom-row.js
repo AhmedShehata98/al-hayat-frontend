@@ -24,7 +24,10 @@ import useNumberFormat from "../../../../hooks/use-number-format";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import { paths } from "../../../../paths";
-import { useDeleteProduct } from "../../../../hooks/use-product";
+import {
+  useDeleteProduct,
+  useToggleProductActive,
+} from "../../../../hooks/use-product";
 import { LoadingButton } from "@mui/lab";
 import { prefixImageUrl } from "../../../../utils/prefixImageUrl";
 import Image from "next/image";
@@ -51,7 +54,7 @@ export default function CustomRow(props) {
   const [open, setOpen] = React.useState(false);
   const theme = useTheme();
 
-  const { deleteProductAsync, isLoading } = useDeleteProduct();
+  const { toggleProductActiveAsync, isLoading } = useToggleProductActive();
 
   const { formatCurrency } = useNumberFormat();
   const parsedQA = useMemo(() => {
@@ -72,14 +75,15 @@ export default function CustomRow(props) {
   }, [row.categoryOptions.questions, row.categoryOptions.answers]);
 
   const handleDeleteProduct = useCallback(
-    async (productId) => {
+    async (productId, isActive) => {
       try {
-        await deleteProductAsync(productId);
+        const formData = new FormData();
+        formData.append("Id", productId);
+        formData.append("IsActive", !isActive);
+
+        await toggleProductActiveAsync(formData);
         handleOpenSnackbar({
-          message: translatedToast.deleteMsg.replace(
-            "@",
-            `# ${productId.slice(0, 8)}...`
-          ),
+          message: translatedToast.updateMsg.replace("@", `# ${productId}...`),
           severity: "success",
         });
       } catch (error) {
@@ -90,7 +94,7 @@ export default function CustomRow(props) {
         console.error(error);
       }
     },
-    [deleteProductAsync, handleOpenSnackbar, translatedToast]
+    [toggleProductActiveAsync, handleOpenSnackbar, translatedToast]
   );
 
   return (
@@ -204,9 +208,11 @@ export default function CustomRow(props) {
                 <LoadingButton
                   loading={isLoading}
                   color="error"
-                  onClick={() => handleDeleteProduct(row.id)}
+                  onClick={() => handleDeleteProduct(row.id, row.isActive)}
                 >
-                  {mainTableTranslations.columns.actions.delete}
+                  {row.isActive
+                    ? t(tokens.common.deactivateBtn)
+                    : t(tokens.common.activeBtn)}
                   <DeleteForeverIcon />
                 </LoadingButton>
               </Box>

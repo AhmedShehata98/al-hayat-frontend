@@ -16,6 +16,8 @@ export const tokens = {
     cancelBtn: "common.cancelBtn",
     updateBtn: "common.updateBtn",
     deleteBtn: "common.deleteBtn",
+    activeBtn: "common.activeBtn",
+    deactivateBtn: "common.deactivateBtn",
     addBtn: "common.addBtn",
     detailsBtn: "common.detailsBtn",
     tryAgainBtn: "common.tryAgainBtn",
@@ -351,6 +353,9 @@ export const tokens = {
     sortBy: {
       date: "products.sortBy.date",
       price: "products.sortBy.price",
+      active: "products.sortBy.active",
+      deactivate: "products.sortBy.deactivate",
+      all: "products.sortBy.all",
       newest: "products.sortBy.newest",
       oldest: "products.sortBy.oldest",
     },
@@ -500,6 +505,11 @@ export const tokens = {
       heading: {
         title: "offers.discounts.heading.title",
         cta: "offers.discounts.heading.cta",
+      },
+      deleteConfirmation: "offers.discounts.deleteConfirmation",
+      deleteConfirmationActions: {
+        yes: "offers.discounts.deleteConfirmationActions.yes",
+        cancel: "offers.discounts.deleteConfirmationActions.cancel",
       },
       notFound: "offers.discounts.notFound",
       discountTable: {

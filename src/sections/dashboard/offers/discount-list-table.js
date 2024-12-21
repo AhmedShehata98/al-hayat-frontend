@@ -1,8 +1,11 @@
-import { Fragment, useCallback } from "react";
+import { Fragment, useCallback, useState } from "react";
 import {
   Alert,
+  Button,
   LinearProgress,
+  Modal,
   Snackbar,
+  Stack,
   Table,
   TableBody,
   TableCell,
@@ -23,16 +26,24 @@ import usePagination from "../../../hooks/use-pagination";
 import {
   useDeleteDiscount,
   useGetDiscounts,
+  useToggleDiscountActive,
 } from "../../../hooks/use-discount";
 import useTranslateDiscounts from "../../../hooks/use-translate-discounts";
 import useDateFormat from "../../../hooks/use-date.format";
 import useSnackbar from "../../../hooks/use-snackbar";
 import Dialog from "../../../components/dialog/Dialog";
 import useTranslateNetworkMessages from "../../../hooks/use-translate-network-msgs.js";
+import { tokens } from "../../../locales/tokens.js";
+import { Box } from "@mui/system";
+import { t } from "i18next";
 
 const DiscountsListTable = (props) => {
   const { translateDiscounts } = useTranslateDiscounts();
   const { noFoundResources, currentLang } = useTranslateNetworkMessages();
+  const [openConfirmDeleteModal, setOpenConfirmDeleteModal] = useState(false);
+  const [selectedDiscount, setSelectedDiscount] = useState(null);
+  const { toggleDiscountActive, isPendingToggleDiscountActive } =
+    useToggleDiscountActive();
 
   const { handleChangeLimit, handleChangePage, limit, page } = usePagination({
     limit: 10,
@@ -81,26 +92,34 @@ const DiscountsListTable = (props) => {
 
   const handleDeleteDiscount = async (discount) => {
     try {
-      const toastId = "discount-dialog";
-      toast.custom(
-        (t) => (
-          <Dialog
-            onReject={() => toast.remove(toastId)}
-            onAccept={async () => {
-              await deleteDiscount(discount.id);
-              handleOpenSnackbar({
-                message: translatedToast.deleteMsg.replace(
-                  "@",
-                  `#${discount.name}`
-                ),
-                severity: "success",
-              });
-              toast.remove(toastId);
-            }}
-          />
+      setSelectedDiscount(discount);
+
+      setOpenConfirmDeleteModal(true);
+    } catch (error) {
+      handleOpenSnackbar({
+        message: translatedToast.errorMsg,
+        severity: "error",
+      });
+      console.error(error);
+    }
+  };
+
+  const handleToggleDiscountState = async () => {
+    try {
+      await toggleDiscountActive({
+        ...selectedDiscount,
+        active: !selectedDiscount.active,
+      });
+
+      setOpenConfirmDeleteModal(false);
+      setSelectedDiscount(null);
+      handleOpenSnackbar({
+        message: translatedToast.deleteMsg.replace(
+          "@",
+          `#${selectedDiscount.name}`
         ),
-        { position: "top-center", duration: 1000 * 10, id: toastId }
-      );
+        severity: "success",
+      });
     } catch (error) {
       handleOpenSnackbar({
         message: translatedToast.errorMsg,
@@ -208,14 +227,13 @@ const DiscountsListTable = (props) => {
                             size="small"
                             color="error"
                             onClick={() => {
-                              if (discount.isUsed) return;
                               handleDeleteDiscount(discount);
                             }}
-                            disabled={
-                              isPendingDeleteDiscount || discount.isUsed
-                            }
                           >
-                            <DeleteForeverIcon />
+                            {discount.active
+                              ? t(tokens.common.deactivateBtn)
+                              : t(tokens.common.activeBtn)}
+                            {/* <DeleteForeverIcon /> */}
                           </LoadingButton>
                         </TableCell>
                       </TableRow>
@@ -252,6 +270,64 @@ const DiscountsListTable = (props) => {
           rowsPerPageOptions={[5, 10, 25]}
         />
       </div>
+      <Modal
+        open={openConfirmDeleteModal}
+        onClose={() => setOpenConfirmDeleteModal(false)}
+        aria-labelledby="modal-delete-discount"
+        aria-describedby={t(tokens.offers.discounts.deleteConfirmation)}
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            gap: 2,
+            width: 400,
+            maxWidth: "90%",
+            backgroundColor: "white",
+          }}
+        >
+          <Typography
+            id="modal-modal-description"
+            sx={{ mt: 2, pt: 4, pb: 6, paddingX: 2 }}
+          >
+            {t(tokens.offers.discounts.deleteConfirmation).replace(
+              "@",
+              selectedDiscount?.active
+                ? t(tokens.common.deactivateBtn)
+                : t(tokens.common.activeBtn)
+            )}
+          </Typography>
+          <Stack
+            flexDirection={"row"}
+            gap={2}
+            sx={{
+              backgroundColor: "#e4e4e4",
+              paddingY: 1,
+              paddingX: 2,
+            }}
+          >
+            <LoadingButton
+              onClick={handleToggleDiscountState}
+              variant="contained"
+            >
+              {t(tokens.offers.discounts.deleteConfirmationActions.yes).replace(
+                "@",
+                selectedDiscount?.active
+                  ? t(tokens.common.deactivateBtn)
+                  : t(tokens.common.activeBtn)
+              )}
+            </LoadingButton>
+            <Button onClick={() => setOpenConfirmDeleteModal(false)}>
+              {t(tokens.offers.discounts.deleteConfirmationActions.cancel)}
+            </Button>
+          </Stack>
+        </Box>
+      </Modal>
       <Snackbar
         open={openSnackbar.open}
         autoHideDuration={autoHideDuration}

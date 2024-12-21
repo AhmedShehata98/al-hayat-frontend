@@ -5,6 +5,7 @@ class ProductsServices extends ApiService {
     search,
     sortDir,
     sortBy,
+    isActive,
     page = 1,
     limit = 10,
   }) {
@@ -22,14 +23,17 @@ class ProductsServices extends ApiService {
       if (search) {
         params.SearchString = search;
       }
-      if (sortDir) {
+      if (sortDir && sortDir !== "null" && sortBy !== "isActive") {
         params.SortDirection = sortDir;
       }
-      if (sortBy) {
+      if (sortBy && sortBy !== "all" && sortBy !== "isActive") {
         params.SortOrder = sortBy;
       }
       if (token) {
         axiosInt.headers = { Authorization: token };
+      }
+      if (isActive && sortBy !== "all") {
+        params.IsActive = Boolean(Number(isActive));
       }
 
       const res = await this.privateAxios(axiosInt);
@@ -87,6 +91,21 @@ class ProductsServices extends ApiService {
         url: `${this.endpoints.products.delete}${productId}`,
         headers: { Authorization: token },
       });
+      return res.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async toggleActive({ fd, token }) {
+    try {
+      const res = await this.privateAxios({
+        url: this.endpoints.products.update,
+        method: "PATCH",
+        data: fd,
+        headers: { Authorization: token },
+      });
+
       return res.data;
     } catch (error) {
       throw error;

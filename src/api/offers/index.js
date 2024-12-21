@@ -160,6 +160,38 @@ class OffersService extends ApiService {
       throw error;
     }
   }
+
+  async toggleDiscountActive({ data, token }) {
+    try {
+      const res = await this.privateAxios({
+        method: "PATCH",
+        url: this.endpoints.offers.discount.update.concat("/" + data.id),
+        data,
+        headers: {
+          Authorization: token,
+        },
+      });
+      return res.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async toggleCouponActive({ data, token }) {
+    try {
+      const res = await this.privateAxios({
+        method: "PATCH",
+        url: this.endpoints.offers.coupon.update.concat("/" + data.id),
+        data,
+        headers: {
+          Authorization: token,
+        },
+      });
+      return res.data;
+    } catch (error) {
+      throw error;
+    }
+  }
 }
 
 export const offersService = new OffersService();

@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { offersService } from "../api/offers";
-
+import { useRecoilValue } from "recoil";
+import { authAtom } from "../atoms/auth-atom";
 const useAddCoupon = () => {
   const queryClient = useQueryClient();
   const {
@@ -99,10 +100,31 @@ const useGetCouponById = (couponId) => {
   };
 };
 
+const useToggleCouponActive = () => {
+  const queryClient = useQueryClient();
+  const authState = useRecoilValue(authAtom);
+
+  const { mutateAsync: toggleStateAsync, isPending: isPendingToggleState } =
+    useMutation({
+      mutationKey: ["toggleCouponActive"],
+      mutationFn: (data) =>
+        offersService.toggleCouponActive({ data, token: authState.token }),
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ["coupons"] });
+      },
+    });
+
+  return {
+    toggleStateAsync,
+    isPendingToggleState,
+  };
+};
+
 export {
   useAddCoupon,
   useUpdateCoupon,
   useGetCouponById,
   useGetCoupons,
   useDeleteCoupon,
+  useToggleCouponActive,
 };

@@ -40,7 +40,7 @@ export const ProductListTable = (props) => {
             discount: prd?.discount?.discountPercentage,
             price: prd?.price,
             quantity: prd?.quantity,
-
+            isActive: prd?.isActive,
             categoryOptions: { ...prd?.category, answers: prd?.answers },
             discountOptions: prd?.discount,
           })

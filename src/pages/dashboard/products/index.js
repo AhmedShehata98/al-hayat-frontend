@@ -65,8 +65,8 @@ const ProductList = () => {
   const { search, updateSearch } = useSearch();
   const [queryString, setQueryString] = useState();
   const [sortQuery, setSort] = useState({
-    sortBy: "orderDate",
-    sortDir: "asc",
+    sortBy: "all",
+    sortDir: "null",
   });
   const [queryDebounced] = useDebounce(queryString, 400);
 
@@ -86,6 +86,7 @@ const ProductList = () => {
 
   const handleSortChange = useCallback((sort) => {
     setSort(sort);
+    console.log("sort:", sort);
   }, []);
 
   const handlePageChange = useCallback(
@@ -179,6 +180,7 @@ const ProductList = () => {
                   search: queryDebounced,
                   sortDir: sortQuery.sortDir,
                   sortBy: sortQuery.sortBy,
+                  isActive: sortQuery.sortDir,
                   page,
                   limit,
                   token: authState.token,

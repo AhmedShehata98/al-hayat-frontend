@@ -1,5 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { offersService } from "../api/offers";
+import { useRecoilValue } from "recoil";
+import { authAtom } from "../atoms/auth-atom";
 
 const useGetDiscounts = ({
   sortOrder,
@@ -87,10 +89,33 @@ const useGetDiscountsById = (discountId) => {
   });
   return { discount: discount?.contentList?.[0], isGettingDiscount };
 };
+
+const useToggleDiscountActive = () => {
+  const queryClient = useQueryClient();
+  const authState = useRecoilValue(authAtom);
+
+  const {
+    mutateAsync: toggleDiscountActive,
+    isPending: isPendingToggleDiscountActive,
+  } = useMutation({
+    mutationFn: (data) =>
+      offersService.toggleDiscountActive({
+        data,
+        token: authState.token,
+      }),
+    onSuccess: () => queryClient.invalidateQueries(["discounts"]),
+  });
+
+  return {
+    toggleDiscountActive,
+    isPendingToggleDiscountActive,
+  };
+};
 export {
   useGetDiscounts,
   useDeleteDiscount,
   useAddDiscount,
   useUpdateDiscount,
   useGetDiscountsById,
+  useToggleDiscountActive,
 };

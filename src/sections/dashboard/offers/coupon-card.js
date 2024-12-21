@@ -23,8 +23,13 @@ import useTranslateCoupon from "../../../hooks/use-translate-coupon";
 import useDateFormat from "../../../hooks/use-date.format";
 import useNumberFormat from "../../../hooks/use-number-format";
 import { COUPON_TYPES } from "../../../utils/coupon-helpers";
-import { useDeleteCoupon } from "../../../hooks/use-coupon";
+import {
+  useDeleteCoupon,
+  useToggleCouponActive,
+} from "../../../hooks/use-coupon";
 import useSnackbar from "../../../hooks/use-snackbar";
+import { t } from "i18next";
+import { tokens } from "../../../locales/tokens";
 
 const CouponCard = ({ coupon, onUpdate, ...props }) => {
   const {
@@ -33,7 +38,7 @@ const CouponCard = ({ coupon, onUpdate, ...props }) => {
   const { formatCurrency } = useNumberFormat();
   const { formatDate } = useDateFormat();
   const [expandText, setExpandText] = useState(false);
-  const { deleteCoupon, isPendingDeleteCoupon } = useDeleteCoupon();
+  const { isPendingToggleState, toggleStateAsync } = useToggleCouponActive();
 
   const {
     id: couponId,
@@ -74,11 +79,11 @@ const CouponCard = ({ coupon, onUpdate, ...props }) => {
     }
   };
 
-  const handleDeleteCoupon = useCallback(async () => {
+  const handleToggleCouponState = useCallback(async () => {
     try {
-      await deleteCoupon(coupon.id);
+      await toggleStateAsync({ ...coupon, active: !coupon.active });
       handleOpenSnackbar({
-        message: translatedToast.deleteMsg.replace("@", `#${coupon.name}`),
+        message: translatedToast.updateMsg.replace("@", `#${coupon.name}`),
         severity: "success",
       });
     } catch (error) {
@@ -88,7 +93,7 @@ const CouponCard = ({ coupon, onUpdate, ...props }) => {
       });
       console.error(error);
     }
-  }, [deleteCoupon, handleOpenSnackbar, translatedToast, coupon]);
+  }, [toggleStateAsync, handleOpenSnackbar, translatedToast, coupon]);
 
   return (
     <Card {...props}>
@@ -255,11 +260,13 @@ const CouponCard = ({ coupon, onUpdate, ...props }) => {
         <LoadingButton
           size="small"
           color="error"
-          startIcon={<DeleteIcon />}
-          onClick={handleDeleteCoupon}
-          loading={isPendingDeleteCoupon}
+          // startIcon={<DeleteIcon />}
+          onClick={handleToggleCouponState}
+          loading={isPendingToggleState}
         >
-          {cardTranslation.couponsCard.actions.delete}
+          {coupon.active
+            ? t(tokens.common.deactivateBtn)
+            : t(tokens.common.activeBtn)}
         </LoadingButton>
         <Button size="small" startIcon={<EditIcon />} onClick={onUpdate}>
           {cardTranslation.couponsCard.actions.edit}

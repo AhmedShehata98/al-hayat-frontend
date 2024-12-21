@@ -16,6 +16,9 @@ const useTranslateProducts = () => {
     searchBar: t(tokens.products.searchBar),
     sort: t(tokens.products.sortSelect),
     sortBy: {
+      all: t(tokens.products.sortBy.all),
+      active: t(tokens.products.sortBy.active),
+      deactivate: t(tokens.products.sortBy.deactivate),
       date: t(tokens.products.sortBy.date),
       price: t(tokens.products.sortBy.price),
       newest: t(tokens.products.sortBy.newest),
